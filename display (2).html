@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basket Display</title>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  background: #000;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* ── BASE LAYOUT ── */
+.board {
+  width:100vw; height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  padding: 2vh 3vw 2vh;
+  background: #000;
+}
+
+.timer-main {
+  font-size: 15vw;
+  color: red;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow: 0 0 30px #ff000088;
+  line-height: 1;
+}
+.timer-shot {
+  font-size: 9vw;
+  color: #ffee00;
+  font-weight: 900;
+  text-shadow: 0 0 20px #ffee0066;
+  line-height: 1;
+}
+.quarter-display {
+  font-size: 5vw;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
+
+.scores-section {
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  width:100%;
+  flex:1;
+  gap: 4vw;
+}
+
+.team-block {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:1;
+}
+
+.team-name {
+  font-size: 6vw;
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow: 0 0 16px #ffffff55;
+  text-align:center;
+}
+
+.score {
+  font-size: 22vw;
+  color: #00ff00;
+  font-weight: 900;
+  line-height: 0.9;
+  text-shadow: 0 0 40px #00ff0066;
+}
+
+.vs-divider {
+  font-size: 8vw;
+  color: #444;
+  font-weight: 900;
+}
+
+.fouls-section {
+  display:flex;
+  justify-content:space-around;
+  width:100%;
+  padding: 1vh 0;
+}
+.fouls {
+  font-size: 4vw;
+  color: #ff8800;
+  font-weight: 700;
+}
+
+/* ── BRAVO OVERLAY ── */
+#bravoOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.0);
+  pointer-events: none;
+  overflow: hidden;
+}
+#bravoOverlay.show { display: block; }
+
+/* Background flash */
+#bravoFlash {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, #ffcc0044 0%, transparent 70%);
+  animation: flashPulse 0.6s ease-in-out infinite alternate;
+}
+@keyframes flashPulse {
+  from { opacity: 0.3; }
+  to   { opacity: 1; }
+}
+
+/* BRAVO text */
+#bravoText {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 20vw;
+  font-weight: 900;
+  color: #ffcc00;
+  text-shadow:
+    0 0 40px #ffcc00,
+    0 0 80px #ff8800,
+    0 0 120px #ff4400;
+  letter-spacing: 6px;
+  animation: bravoIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  font-family: Arial Black, Arial, sans-serif;
+  -webkit-text-stroke: 2px #ff8800;
+}
+@keyframes bravoIn {
+  0%   { transform: translate(-50%, -50%) scale(0) rotate(-10deg); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(0deg);   opacity: 1; }
+}
+
+/* Stars / sparks */
+.spark {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Confetti pieces */
+.confetti-piece {
+  position: absolute;
+  width: 12px;
+  height: 18px;
+  top: -20px;
+  opacity: 0;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
+}
+
+/* Stars burst */
+.star-burst {
+  position: absolute;
+  font-size: 5vw;
+  animation: starOut 1.2s ease-out forwards;
+}
+@keyframes starOut {
+  0%   { transform: scale(0) translate(0,0); opacity: 1; }
+  100% { transform: scale(1.5) translate(var(--tx), var(--ty)); opacity: 0; }
+}
+
+/* firework circles */
+.firework-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 4px solid #ffcc00;
+  animation: ringExpand 1s ease-out forwards;
+}
+@keyframes ringExpand {
+  0%   { width:0; height:0; opacity:1; margin:-0px; }
+  100% { width:40vw; height:40vw; opacity:0; margin:-20vw; }
+}
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="timer-main" id="mainTimer">10:00</div>
+
+  <div style="display:flex;gap:4vw;align-items:center;">
+    <div class="timer-shot" id="shotTimer">24</div>
+    <div class="quarter-display" id="quarterDisplay">1st</div>
+  </div>
+
+  <div class="scores-section">
+    <div class="team-block">
+      <div class="team-name" id="team1Name">Team 1</div>
+      <div class="score" id="s1">0</div>
+    </div>
+    <div class="vs-divider">X</div>
+    <div class="team-block">
+      <div class="team-name" id="team2Name">Team 2</div>
+      <div class="score" id="s2">0</div>
+    </div>
+  </div>
+
+  <div class="fouls-section">
+    <div class="fouls">Fouls: <span id="f1">0</span></div>
+    <div class="fouls">Fouls: <span id="f2">0</span></div>
+  </div>
+</div>
+
+<!-- BRAVO OVERLAY -->
+<div id="bravoOverlay">
+  <div id="bravoFlash"></div>
+  <div id="bravoText">BRAVO!</div>
+  <div id="confettiContainer"></div>
+  <div id="starsContainer"></div>
+  <div id="fireworkContainer"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDr78eta_v2AOxrll2mTX8noI805qPtifA",
+  authDomain: "ok-new-7c868.firebaseapp.com",
+  databaseURL: "https://ok-new-7c868-default-rtdb.firebaseio.com",
+  projectId: "ok-new-7c868",
+  storageBucket: "ok-new-7c868.firebasestorage.app",
+  messagingSenderId: "760753992927",
+  appId: "1:760753992927:web:8702569c9c7c45be7fe56a"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const QUARTER_NAMES = ['1st','2nd','3rd','4th'];
+
+function formatTime(t) {
+  let m = Math.floor(t / 60);
+  let s = t % 60;
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+/* ── SCOREBOARD listener ── */
+db.ref('scoreboard').on('value', (snap) => {
+  if (!snap.exists()) return;
+  const d = snap.val();
+  if (d.score1 !== undefined) document.getElementById('s1').innerText = d.score1;
+  if (d.score2 !== undefined) document.getElementById('s2').innerText = d.score2;
+  if (d.team1Name) document.getElementById('team1Name').innerText = d.team1Name;
+  if (d.team2Name) document.getElementById('team2Name').innerText = d.team2Name;
+  if (d.quarter)  document.getElementById('quarterDisplay').innerText = QUARTER_NAMES[(d.quarter-1)%4];
+});
+
+/* ── GAME listener (timer/fouls) ── */
+db.ref('game').on('value', (snap) => {
+  if (!snap.exists()) return;
+  const d = snap.val();
+  if (d.main  !== undefined) document.getElementById('mainTimer').innerText = formatTime(d.main);
+  if (d.shot  !== undefined) document.getElementById('shotTimer').innerText = d.shot;
+  if (d.team1 !== undefined) document.getElementById('s1').innerText = d.team1;
+  if (d.team2 !== undefined) document.getElementById('s2').innerText = d.team2;
+  if (d.fouls1 !== undefined) document.getElementById('f1').innerText = d.fouls1;
+  if (d.fouls2 !== undefined) document.getElementById('f2').innerText = d.fouls2;
+});
+
+/* ── BRAVO listener ── */
+let lastBravoTs = 0;
+db.ref('bravo').on('value', (snap) => {
+  if (!snap.exists()) return;
+  const d = snap.val();
+  if (d.active && d.ts && d.ts !== lastBravoTs) {
+    lastBravoTs = d.ts;
+    triggerBravo();
+  }
+});
+
+/* ── BRAVO engine ── */
+let bravoTimeout = null;
+function triggerBravo() {
+  clearTimeout(bravoTimeout);
+  const overlay = document.getElementById('bravoOverlay');
+
+  // Reset
+  overlay.classList.remove('show');
+  void overlay.offsetWidth; // reflow
+
+  // Rebuild BRAVO text with fresh animation
+  const txt = document.getElementById('bravoText');
+  txt.style.animation = 'none';
+  void txt.offsetWidth;
+  txt.style.animation = '';
+
+  // Confetti
+  spawnConfetti();
+  // Stars burst
+  spawnStars();
+  // Firework rings
+  spawnFireworks();
+
+  overlay.classList.add('show');
+
+  // Play sound
+  playBravoSound();
+
+  bravoTimeout = setTimeout(() => {
+    overlay.classList.remove('show');
+    document.getElementById('confettiContainer').innerHTML = '';
+    document.getElementById('starsContainer').innerHTML = '';
+    document.getElementById('fireworkContainer').innerHTML = '';
+  }, 4500);
+}
+
+/* Confetti */
+const CONFETTI_COLORS = ['#ff0044','#ffcc00','#00ff88','#0088ff','#ff8800','#ff00ff','#ffffff'];
+function spawnConfetti() {
+  const container = document.getElementById('confettiContainer');
+  container.innerHTML = '';
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    el.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      background: ${color};
+      width: ${8 + Math.random() * 12}px;
+      height: ${12 + Math.random() * 16}px;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      animation-duration: ${1.5 + Math.random() * 2.5}s;
+      animation-delay: ${Math.random() * 0.8}s;
+      transform: rotate(${Math.random()*360}deg);
+    `;
+    container.appendChild(el);
+  }
+}
+
+/* Stars */
+const STAR_EMOJIS = ['⭐','🌟','✨','💥','🎊','🎉','🏆','🔥'];
+function spawnStars() {
+  const container = document.getElementById('starsContainer');
+  container.innerHTML = '';
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div');
+    el.className = 'star-burst';
+    const angle = (i / 18) * 360;
+    const dist = 25 + Math.random() * 30;
+    const rad = angle * Math.PI / 180;
+    el.style.cssText = `
+      left: 50%; top: 50%;
+      --tx: ${Math.cos(rad) * dist}vw;
+      --ty: ${Math.sin(rad) * dist}vh;
+      animation-delay: ${Math.random() * 0.3}s;
+      animation-duration: ${0.8 + Math.random() * 0.6}s;
+    `;
+    el.textContent = STAR_EMOJIS[Math.floor(Math.random() * STAR_EMOJIS.length)];
+    container.appendChild(el);
+  }
+}
+
+/* Firework rings */
+function spawnFireworks() {
+  const container = document.getElementById('fireworkContainer');
+  container.innerHTML = '';
+  const positions = [
+    [20,25],[80,25],[50,50],[15,70],[85,70],[50,20]
+  ];
+  const colors = ['#ffcc00','#ff4444','#00ff88','#4488ff','#ff8800'];
+  positions.forEach(([x,y], idx) => {
+    const el = document.createElement('div');
+    el.className = 'firework-ring';
+    const color = colors[idx % colors.length];
+    el.style.cssText = `
+      left: ${x}%;
+      top: ${y}%;
+      border-color: ${color};
+      box-shadow: 0 0 10px ${color};
+      animation-delay: ${idx * 0.2}s;
+      animation-duration: ${0.8 + Math.random() * 0.4}s;
+    `;
+    container.appendChild(el);
+  });
+}
+
+/* ── AUDIO engine ── */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playBravoSound() {
+  try {
+    const ctx = getAudioCtx();
+    // Fanfare melody: C5 E5 G5 C6 + chord
+    const melody = [
+      { freq: 523, start: 0,    dur: 0.18 },
+      { freq: 659, start: 0.18, dur: 0.18 },
+      { freq: 784, start: 0.36, dur: 0.18 },
+      { freq: 1047,start: 0.54, dur: 0.45 },
+      // chord hits
+      { freq: 523, start: 0.54, dur: 0.45 },
+      { freq: 784, start: 0.54, dur: 0.45 },
+      // second wave
+      { freq: 1047,start: 1.1,  dur: 0.18 },
+      { freq: 880, start: 1.28, dur: 0.18 },
+      { freq: 1047,start: 1.46, dur: 0.5  },
+      { freq: 1319,start: 1.46, dur: 0.5  },
+    ];
+
+    melody.forEach(note => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(note.freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0, ctx.currentTime + note.start);
+      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + note.start + 0.02);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + note.start + note.dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + note.start);
+      osc.stop(ctx.currentTime + note.start + note.dur + 0.05);
+    });
+
+    // Percussion hit (noise burst)
+    for (let i = 0; i < 3; i++) {
+      const bufSize = ctx.sampleRate * 0.08;
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let j = 0; j < bufSize; j++) data[j] = (Math.random() * 2 - 1) * 0.4;
+      const src  = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      const filt = ctx.createBiquadFilter();
+      filt.type = 'bandpass';
+      filt.frequency.value = 800 + i * 400;
+      src.buffer = buf;
+      gain.gain.setValueAtTime(0.6, ctx.currentTime + i * 0.55);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.55 + 0.12);
+      src.connect(filt);
+      filt.connect(gain);
+      gain.connect(ctx.destination);
+      src.start(ctx.currentTime + i * 0.55);
+    }
+
+    // Crowd cheer (low rumble sweep)
+    const cheerOsc = ctx.createOscillator();
+    const cheerGain = ctx.createGain();
+    cheerOsc.type = 'sawtooth';
+    cheerOsc.frequency.setValueAtTime(80, ctx.currentTime);
+    cheerOsc.frequency.linearRampToValueAtTime(200, ctx.currentTime + 2);
+    cheerGain.gain.setValueAtTime(0, ctx.currentTime);
+    cheerGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.3);
+    cheerGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 2.5);
+    cheerOsc.connect(cheerGain);
+    cheerGain.connect(ctx.destination);
+    cheerOsc.start(ctx.currentTime);
+    cheerOsc.stop(ctx.currentTime + 2.6);
+
+  } catch(e) {
+    console.warn('Audio error:', e);
+  }
+}
+
+// Unlock audio on first touch (mobile requirement)
+document.addEventListener('touchstart', () => {
+  if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
+document.addEventListener('click', () => {
+  if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
+</script>
+</body>
+</html>
