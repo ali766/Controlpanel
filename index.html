@@ -28,7 +28,7 @@ html, body {
   flex-direction: column;
 }
 
-/* ══ TOP BAR ══ */
+/* TOP BAR */
 .top-bar {
   display: flex;
   align-items: center;
@@ -80,7 +80,7 @@ html, body {
 }
 .top-right {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .icon-btn {
@@ -90,12 +90,31 @@ html, body {
   border: none;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   flex-shrink: 0;
 }
 .icon-btn:active { transform: scale(0.92); }
 
-/* ══ MAIN CONTENT ══ */
+/* BRAVO button */
+.bravo-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6600, #ffcc00);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px #ff660088;
+  animation: pulse-bravo 2s infinite;
+}
+.bravo-btn:active { transform: scale(0.88); }
+@keyframes pulse-bravo {
+  0%,100% { box-shadow: 0 0 10px #ff660066; }
+  50%      { box-shadow: 0 0 22px #ff6600cc; }
+}
+
+/* MAIN CONTENT */
 .main-content {
   flex: 1;
   display: flex;
@@ -104,9 +123,7 @@ html, body {
   padding: 0 4px;
   gap: 4px;
 }
-
-/* LEFT col */
-.left-col {
+.left-col, .right-col {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -159,18 +176,6 @@ html, body {
   padding: 4px 0;
   min-width: 0;
 }
-/* Score inline row — score + buttons side by side */
-.score-inline-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.score-btns-inline {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
 .teams-row {
   display: flex;
   width: 100%;
@@ -192,7 +197,6 @@ html, body {
   font-family: 'Rajdhani', sans-serif;
   font-size: clamp(18px, 5vw, 30px);
   font-weight: 700;
-  -webkit-text-stroke: 0.4px #fff;
   cursor: pointer;
   letter-spacing: 2px;
 }
@@ -202,8 +206,6 @@ html, body {
   font-size: clamp(60px, 17vw, 130px);
   font-weight: 900;
   color: #ffee00;
-  text-shadow: none;
-  -webkit-text-stroke: 0px;
   line-height: 1;
   letter-spacing: -2px;
 }
@@ -217,8 +219,6 @@ html, body {
   padding: 2px 0;
   gap: 4px;
 }
-
-/* 4 independent dots — tap cycles 0→4→0 */
 .dots-group {
   display: flex;
   gap: 5px;
@@ -238,8 +238,6 @@ html, body {
   transition: background 0.12s;
 }
 .dot-ind.on { background: #fff; box-shadow: 0 0 5px #fff; }
-
-/* Fouls center */
 .fouls-center {
   display: flex;
   flex-direction: column;
@@ -330,50 +328,12 @@ html, body {
 }
 .shot-digit.t1 { color: #ffee00; }
 .shot-digit.t2 { color: #ff8800; }
-.shot-sep {
-  color: #fff;
-  font-size: clamp(20px, 5.5vw, 38px);
-  font-weight: 700;
-}
+.shot-sep { color: #fff; font-size: clamp(20px, 5.5vw, 38px); font-weight: 700; }
 
-/* RIGHT col */
-.right-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 0;
-}
-.right-bottom-icons {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-}
-
-/* BOTTOM */
-.bottom-bar {
-  display: flex;
-  justify-content: center;
-  padding: 4px 0 6px;
-}
-.divider {
-  width: 55%;
-  height: 3px;
-  background: #fff;
-  border-radius: 2px;
-}
-
-/* Wake dot */
-.wake-dot {
-  position: fixed;
-  top: 5px; right: 5px;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #00ff44;
-  opacity: 0.5;
-  z-index: 999;
-}
+.right-bottom-icons { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.bottom-bar { display: flex; justify-content: center; padding: 4px 0 6px; }
+.divider { width: 55%; height: 3px; background: #fff; border-radius: 2px; }
+.wake-dot { position: fixed; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: #00ff44; opacity: 0.5; z-index: 999; }
 .wake-dot.off { background: #444; }
 
 /* ══ MODALS ══ */
@@ -438,6 +398,186 @@ html, body {
 .confirm-btns { display: flex; gap: 16px; }
 .confirm-yes { background: #e74c3c; color: #fff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 18px; font-weight: 700; cursor: pointer; }
 .confirm-no  { background: #555;    color: #fff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 18px; font-weight: 700; cursor: pointer; }
+
+/* ══ EDIT FULL MODAL ══ */
+#editModal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 300;
+  overflow-y: auto;
+  padding: 16px;
+}
+#editModal.show { display: block; }
+.edit-container {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 20px;
+}
+.edit-title {
+  color: #ffcc00;
+  font-family: 'Orbitron', monospace;
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 4px;
+  letter-spacing: 2px;
+}
+.edit-section {
+  background: #1a1a1a;
+  border: 1.5px solid #444;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.edit-section-title {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.edit-label {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+}
+.edit-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 20px;
+  font-weight: 900;
+  color: #00ff88;
+  min-width: 60px;
+  text-align: center;
+}
+.edit-val.clock-val { color: #ff2200; font-size: 22px; }
+.edit-val.yellow { color: #ffee00; }
+.edit-val.orange { color: #ff8800; }
+.edit-stepper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.step-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace;
+  line-height: 1;
+}
+.step-btn.minus { background: #c0392b; color: #fff; }
+.step-btn.plus  { background: #27ae60; color: #fff; }
+.step-btn:active { transform: scale(0.88); }
+.edit-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.edit-name-input {
+  background: #333;
+  border: 1px solid #666;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  padding: 8px 12px;
+  flex: 1;
+  font-family: 'Rajdhani', sans-serif;
+  -webkit-user-select: auto;
+  user-select: auto;
+  touch-action: auto;
+}
+.edit-save-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: #2980b9;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.edit-save-btn:active { transform: scale(0.88); }
+.edit-close-btn {
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+}
+.edit-close-btn:active { background: #ddd; }
+
+/* Time edit specific */
+.time-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.time-unit-label { color: #888; font-size: 11px; letter-spacing: 1px; }
+.time-val-display {
+  font-family: 'Orbitron', monospace;
+  font-size: 28px;
+  font-weight: 900;
+  color: #ff2200;
+  min-width: 60px;
+  text-align: center;
+  background: #111;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.time-sep { color: #ff2200; font-size: 28px; font-weight: 900; margin-top: 16px; }
+.time-steppers { display: flex; gap: 6px; }
+
+/* Quarter stepper inline */
+.quarter-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.quarter-names-bar {
+  display: flex; gap: 6px;
+}
+.q-name-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 2px solid #444;
+  background: #111;
+  color: #888;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.q-name-btn.active {
+  border-color: #ffcc00;
+  color: #ffcc00;
+  background: #2a2200;
+}
+.q-name-btn:active { transform: scale(0.9); }
 </style>
 </head>
 <body>
@@ -455,7 +595,10 @@ html, body {
       <div class="quarter-label" id="quarterLabel">1st</div>
     </div>
     <div class="top-right">
-      <button class="icon-btn" onclick="openTeamEdit()">✏️</button>
+      <!-- EDIT BUTTON -->
+      <button class="icon-btn" style="background:#ffcc00;font-size:16px;font-weight:900;font-family:'Rajdhani',sans-serif;" onclick="openEditModal()">✏️</button>
+      <!-- BRAVO BUTTON -->
+      <button class="bravo-btn" onclick="sendBravo()" title="Bravo!">🎉</button>
       <button class="icon-btn" onclick="showOptions()">⋯</button>
     </div>
   </div>
@@ -463,7 +606,7 @@ html, body {
   <!-- MAIN CONTENT -->
   <div class="main-content">
 
-    <!-- LEFT col: +1+2+3 top, 14/24 bottom -->
+    <!-- LEFT col -->
     <div class="left-col">
       <div class="score-btns">
         <button class="score-btn" onclick="addScore(1,1)">+1</button>
@@ -478,43 +621,31 @@ html, body {
 
     <!-- CENTER -->
     <div class="center-area">
-
-      <!-- Team names + scores -->
       <div class="teams-row">
-
-        <!-- Team 1 -->
         <div class="team-block">
           <button class="team-name-btn" onclick="editTeam(1)" id="team1Title">Team 1</button>
           <div class="digit-score" id="s1">0</div>
         </div>
-
         <div>
           <svg width="44" height="54" viewBox="0 0 44 54" fill="none">
             <line x1="4" y1="4" x2="40" y2="50" stroke="white" stroke-width="6" stroke-linecap="round"/>
             <line x1="40" y1="4" x2="4"  y2="50" stroke="white" stroke-width="6" stroke-linecap="round"/>
           </svg>
         </div>
-
-        <!-- Team 2 -->
         <div class="team-block">
           <button class="team-name-btn" onclick="editTeam(2)" id="team2Title">Team 2</button>
           <div class="digit-score" id="s2">0</div>
         </div>
-
       </div>
 
       <!-- Fouls row -->
       <div class="fouls-row">
-
-        <!-- Team 1: 4 independent dots (tap to cycle) -->
         <button class="dots-group" onclick="cycleDot(1)">
           <div class="dot-ind" id="d1_1"></div>
           <div class="dot-ind" id="d1_2"></div>
           <div class="dot-ind" id="d1_3"></div>
           <div class="dot-ind" id="d1_4"></div>
         </button>
-
-        <!-- Fouls center with ◄ Fouls ► and counts -->
         <div class="fouls-center">
           <div class="fouls-label-row">
             <button class="fouls-arrow-btn" onclick="subtractFoul(1)"><span class="arrow-l"></span></button>
@@ -526,18 +657,15 @@ html, body {
             <span class="foul-num" id="foulNum2">0</span>
           </div>
         </div>
-
-        <!-- Team 2: 4 independent dots -->
         <button class="dots-group" onclick="cycleDot(2)">
           <div class="dot-ind" id="d2_1"></div>
           <div class="dot-ind" id="d2_2"></div>
           <div class="dot-ind" id="d2_3"></div>
           <div class="dot-ind" id="d2_4"></div>
         </button>
-
       </div>
 
-      <!-- Shot row: + foul1 x foul2 + -->
+      <!-- Shot row -->
       <div class="shot-row">
         <button class="shot-ctrl-btn" onclick="addFoul(1)">+</button>
         <div class="shot-digits">
@@ -547,10 +675,9 @@ html, body {
         </div>
         <button class="shot-ctrl-btn" onclick="addFoul(2)">+</button>
       </div>
-
     </div>
 
-    <!-- RIGHT col: +1+2+3 top, icons bottom -->
+    <!-- RIGHT col -->
     <div class="right-col">
       <div class="score-btns">
         <button class="score-btn" onclick="addScore(2,1)">+1</button>
@@ -562,14 +689,12 @@ html, body {
         <button class="icon-btn" onclick="undoScore()">↩</button>
       </div>
     </div>
-
   </div>
 
   <div class="bottom-bar"><div class="divider"></div></div>
-
 </div>
 
-<!-- TEAM NAME MODAL -->
+<!-- TEAM NAME MODAL (quick tap) -->
 <div class="modal-overlay" id="teamModal">
   <div class="modal-box">
     <h3 id="modalTitle">Edit Team Name</h3>
@@ -598,6 +723,117 @@ html, body {
   <div class="confirm-btns">
     <button class="confirm-yes" onclick="doReset()">Yes, Reset</button>
     <button class="confirm-no" onclick="document.getElementById('confirmModal').classList.remove('show')">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ FULL EDIT MODAL ══ -->
+<div id="editModal">
+  <div class="edit-container">
+    <div class="edit-title">✏️ EDIT MODE</div>
+
+    <!-- TIMER SECTION -->
+    <div class="edit-section">
+      <div class="edit-section-title">⏱ Main Clock</div>
+      <div class="time-edit-row">
+        <div class="time-unit">
+          <div class="time-unit-label">MIN</div>
+          <div class="time-steppers">
+            <button class="step-btn minus" onclick="adjustTime('min',-1)">−</button>
+          </div>
+          <div class="time-val-display" id="editMin">10</div>
+          <div class="time-steppers">
+            <button class="step-btn plus" onclick="adjustTime('min',1)">+</button>
+          </div>
+        </div>
+        <div class="time-sep">:</div>
+        <div class="time-unit">
+          <div class="time-unit-label">SEC</div>
+          <div class="time-steppers">
+            <button class="step-btn minus" onclick="adjustTime('sec',-1)">−</button>
+          </div>
+          <div class="time-val-display" id="editSec">00</div>
+          <div class="time-steppers">
+            <button class="step-btn plus" onclick="adjustTime('sec',1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOT CLOCK SECTION -->
+    <div class="edit-section">
+      <div class="edit-section-title">🟡 Shot Clock</div>
+      <div class="edit-row">
+        <div class="edit-label">Shot Clock</div>
+        <div class="edit-stepper">
+          <button class="step-btn minus" onclick="adjustShot(-1)">−</button>
+          <div class="edit-val" id="editShot">24</div>
+          <button class="step-btn plus" onclick="adjustShot(1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUARTER SECTION -->
+    <div class="edit-section">
+      <div class="edit-section-title">🏀 Quarter</div>
+      <div class="quarter-names-bar" id="quarterBtns">
+        <button class="q-name-btn" onclick="setQuarterEdit(1)">1st</button>
+        <button class="q-name-btn" onclick="setQuarterEdit(2)">2nd</button>
+        <button class="q-name-btn" onclick="setQuarterEdit(3)">3rd</button>
+        <button class="q-name-btn" onclick="setQuarterEdit(4)">4th</button>
+      </div>
+    </div>
+
+    <!-- TEAM 1 SECTION -->
+    <div class="edit-section">
+      <div class="edit-section-title">🟡 Team 1</div>
+      <div class="edit-name-row">
+        <input type="text" class="edit-name-input" id="editName1" placeholder="Team 1 name">
+        <button class="edit-save-btn" onclick="saveEditName(1)">✓</button>
+      </div>
+      <div class="edit-row">
+        <div class="edit-label">Score</div>
+        <div class="edit-stepper">
+          <button class="step-btn minus" onclick="adjustScore(1,-1)">−</button>
+          <div class="edit-val yellow" id="editS1">0</div>
+          <button class="step-btn plus" onclick="adjustScore(1,1)">+</button>
+        </div>
+      </div>
+      <div class="edit-row">
+        <div class="edit-label">Fouls</div>
+        <div class="edit-stepper">
+          <button class="step-btn minus" onclick="adjustFoulEdit(1,-1)">−</button>
+          <div class="edit-val" id="editF1">0</div>
+          <button class="step-btn plus" onclick="adjustFoulEdit(1,1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM 2 SECTION -->
+    <div class="edit-section">
+      <div class="edit-section-title">🟠 Team 2</div>
+      <div class="edit-name-row">
+        <input type="text" class="edit-name-input" id="editName2" placeholder="Team 2 name">
+        <button class="edit-save-btn" onclick="saveEditName(2)">✓</button>
+      </div>
+      <div class="edit-row">
+        <div class="edit-label">Score</div>
+        <div class="edit-stepper">
+          <button class="step-btn minus" onclick="adjustScore(2,-1)">−</button>
+          <div class="edit-val yellow" id="editS2">0</div>
+          <button class="step-btn plus" onclick="adjustScore(2,1)">+</button>
+        </div>
+      </div>
+      <div class="edit-row">
+        <div class="edit-label">Fouls</div>
+        <div class="edit-stepper">
+          <button class="step-btn minus" onclick="adjustFoulEdit(2,-1)">−</button>
+          <div class="edit-val" id="editF2">0</div>
+          <button class="step-btn plus" onclick="adjustFoulEdit(2,1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="edit-close-btn" onclick="closeEditModal()">✅ Done — Close Edit</button>
   </div>
 </div>
 
@@ -673,7 +909,6 @@ async function requestWakeLock() {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') requestWakeLock(); });
 requestWakeLock();
 
-/* Fullscreen */
 function toggleFullscreen() {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
   else document.exitFullscreen && document.exitFullscreen();
@@ -749,26 +984,18 @@ function addScore(team, pts) {
 }
 function undoScore() { score1 = lastScore1; score2 = lastScore2; renderAll(); save(); }
 
-/* Fouls — + button adds, ◄ ► subtracts */
-function addFoul(team) {
-  if (team === 1) foul1++;
-  else            foul2++;
-  renderAll(); save();
-}
-function subtractFoul(team) {
-  if (team === 1) foul1 = Math.max(0, foul1 - 1);
-  else            foul2 = Math.max(0, foul2 - 1);
-  renderAll(); save();
-}
+/* Fouls */
+function addFoul(team)      { if (team === 1) foul1++; else foul2++; renderAll(); save(); }
+function subtractFoul(team) { if (team === 1) foul1 = Math.max(0, foul1-1); else foul2 = Math.max(0, foul2-1); renderAll(); save(); }
 
-/* Independent dots — each tap lights one more, after 4 resets to 0 */
+/* Dots */
 function cycleDot(team) {
   if (team === 1) dots1 = dots1 >= 4 ? 0 : dots1 + 1;
   else            dots2 = dots2 >= 4 ? 0 : dots2 + 1;
   renderAll(); save();
 }
 
-/* Shot clock display */
+/* Shot clock */
 function setShotClock(val) { shotClockVal = val; renderAll(); save(); }
 function resetShotClock()  { shotClockVal = 24;  renderAll(); save(); }
 
@@ -785,7 +1012,7 @@ function doReset() {
   renderAll(); save(); pushFirebase();
 }
 
-/* Team names */
+/* Team name quick modal */
 function openTeamEdit() { editTeam(1); }
 function editTeam(t) {
   editingTeam = t;
@@ -805,10 +1032,121 @@ function closeModal() { document.getElementById('teamModal').classList.remove('s
 function showOptions()  { document.getElementById('optionsModal').classList.add('show'); }
 function closeOptions() { document.getElementById('optionsModal').classList.remove('show'); }
 
-/* Firebase */
+/* ══ FULL EDIT MODAL ══ */
+function openEditModal() {
+  // Sync edit values from current state
+  const m = Math.floor(mainRemaining / 60);
+  const s = mainRemaining % 60;
+  document.getElementById('editMin').textContent = String(m).padStart(2,'0');
+  document.getElementById('editSec').textContent = String(s).padStart(2,'0');
+  document.getElementById('editShot').textContent = shotClockVal;
+  document.getElementById('editS1').textContent = score1;
+  document.getElementById('editS2').textContent = score2;
+  document.getElementById('editF1').textContent = foul1;
+  document.getElementById('editF2').textContent = foul2;
+  document.getElementById('editName1').value = team1Name;
+  document.getElementById('editName2').value = team2Name;
+  // Highlight current quarter
+  document.querySelectorAll('.q-name-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i + 1 === currentQuarter);
+  });
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+  renderAll(); save(); pushFirebase();
+}
+
+/* Time adjust */
+function adjustTime(unit, delta) {
+  let m = parseInt(document.getElementById('editMin').textContent) || 0;
+  let s = parseInt(document.getElementById('editSec').textContent) || 0;
+  if (unit === 'min') m = Math.max(0, Math.min(59, m + delta));
+  if (unit === 'sec') s = Math.max(0, Math.min(59, s + delta));
+  mainRemaining = m * 60 + s;
+  document.getElementById('editMin').textContent = String(m).padStart(2,'0');
+  document.getElementById('editSec').textContent = String(s).padStart(2,'0');
+  renderTimer();
+}
+
+/* Shot adjust */
+function adjustShot(delta) {
+  shotClockVal = Math.max(0, Math.min(60, shotClockVal + delta));
+  document.getElementById('editShot').textContent = shotClockVal;
+  document.getElementById('shotClockTop').textContent = shotClockVal + '.0';
+}
+
+/* Quarter select */
+function setQuarterEdit(q) {
+  currentQuarter = q;
+  document.querySelectorAll('.q-name-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i + 1 === q);
+  });
+  document.getElementById('quarterLabel').textContent = QUARTER_NAMES[(q-1)%4];
+}
+
+/* Score adjust in edit modal */
+function adjustScore(team, delta) {
+  if (team === 1) {
+    score1 = Math.max(0, score1 + delta);
+    document.getElementById('editS1').textContent = score1;
+    document.getElementById('s1').textContent = score1;
+  } else {
+    score2 = Math.max(0, score2 + delta);
+    document.getElementById('editS2').textContent = score2;
+    document.getElementById('s2').textContent = score2;
+  }
+}
+
+/* Foul adjust in edit modal */
+function adjustFoulEdit(team, delta) {
+  if (team === 1) {
+    foul1 = Math.max(0, foul1 + delta);
+    document.getElementById('editF1').textContent = foul1;
+  } else {
+    foul2 = Math.max(0, foul2 + delta);
+    document.getElementById('editF2').textContent = foul2;
+  }
+  document.getElementById('foulNum1').textContent = foul1;
+  document.getElementById('foulNum2').textContent = foul2;
+  document.getElementById('shotD1').textContent = foul1;
+  document.getElementById('shotD2').textContent = foul2;
+}
+
+/* Name save in edit modal */
+function saveEditName(team) {
+  const val = document.getElementById('editName' + team).value.trim();
+  if (val) {
+    if (team === 1) { team1Name = val; document.getElementById('team1Title').textContent = val; }
+    else            { team2Name = val; document.getElementById('team2Title').textContent = val; }
+  }
+}
+
+/* ══ BRAVO BUTTON ══ */
+function sendBravo() {
+  // Send bravo event to Firebase so display screen can react
+  db.ref('bravo').set({ ts: Date.now(), active: true });
+  // Visual feedback on controller
+  const btn = document.querySelector('.bravo-btn');
+  btn.style.transform = 'scale(1.3)';
+  btn.textContent = '🎊';
+  setTimeout(() => {
+    btn.style.transform = '';
+    btn.textContent = '🎉';
+    // Reset bravo after 4 seconds
+    db.ref('bravo').set({ ts: Date.now(), active: false });
+  }, 4000);
+}
+
+/* Firebase push */
 function pushFirebase() {
-  try { db.ref('scoreboard').set({ score1, score2, team1Name, team2Name, quarter: currentQuarter, ts: Date.now() }); }
-  catch(e) {}
+  try {
+    db.ref('scoreboard').set({
+      score1, score2, team1Name, team2Name,
+      quarter: currentQuarter, ts: Date.now()
+    });
+  } catch(e) {}
 }
 
 renderAll();
