@@ -4,382 +4,337 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Basketball Scoreboard</title>
+<title>Basketball Controller</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after {
-  margin: 0; padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
-html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Rajdhani',sans-serif; }
-.board { width:100vw; height:100vh; background:#000; display:flex; flex-direction:column; }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Rajdhani',sans-serif}
+.board{width:100vw;height:100vh;background:#000;display:flex;flex-direction:column}
 
 /* TOP BAR */
-.top-bar { display:flex; align-items:center; padding:6px 10px; gap:8px; }
-.shot-clock-display {
-  font-family:'Orbitron',monospace; font-size:clamp(22px,6vw,44px); font-weight:900;
-  color:#e8c000; text-shadow:0 0 12px #e8c00066; letter-spacing:2px; min-width:90px;
-  cursor:pointer; border:2px dashed #e8c00044; border-radius:8px; padding:2px 6px;
-}
-.shot-clock-display.running { color:#ff8800; text-shadow:0 0 18px #ff880099; border-color:#ff880044; }
-.shot-clock-display.danger  { color:#ff2200; text-shadow:0 0 20px #ff220099; border-color:#ff220066; animation: blink .4s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+.top-bar{display:flex;align-items:center;padding:6px 10px;gap:8px}
+.shot-top{font-family:'Orbitron',monospace;font-size:clamp(20px,5.5vw,40px);font-weight:900;color:#e8c000;letter-spacing:2px;min-width:88px;cursor:pointer;border:2px dashed #e8c00055;border-radius:8px;padding:2px 6px;transition:color .2s}
+.shot-top.run{color:#ff8800;border-color:#ff880055}
+.shot-top.danger{color:#ff2200;border-color:#ff220077;animation:bl .4s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.top-center{flex:1;display:flex;align-items:center;justify-content:center;gap:10px}
+.play-btn{width:50px;height:50px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;flex-shrink:0}
+.play-btn:active{transform:scale(.9)}
+.main-clk{font-family:'Orbitron',monospace;font-size:clamp(28px,7.5vw,54px);font-weight:900;color:#ff2200;letter-spacing:3px;line-height:1}
+.qtr-lbl{font-family:'Rajdhani',sans-serif;font-size:clamp(16px,4.5vw,28px);font-weight:700;color:#fff;min-width:34px}
+.top-right{display:flex;gap:6px;align-items:center}
+.ico{width:44px;height:44px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0}
+.ico:active{transform:scale(.9)}
+.bravo-ico{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ff6600,#ffcc00);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;flex-shrink:0;box-shadow:0 0 12px #ff660077;animation:pb 2s infinite}
+.bravo-ico:active{transform:scale(.88)}
+@keyframes pb{0%,100%{box-shadow:0 0 8px #ff660055}50%{box-shadow:0 0 20px #ff6600bb}}
 
-.top-center { flex:1; display:flex; align-items:center; justify-content:center; gap:12px; }
-.play-btn {
-  width:48px; height:48px; border-radius:50%; background:#fff; border:3px solid #fff;
-  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px; flex-shrink:0;
-}
-.play-btn:active { transform:scale(.92); }
-.main-clock {
-  font-family:'Orbitron',monospace; font-size:clamp(30px,8vw,58px); font-weight:900;
-  color:#ff2200; text-shadow:0 0 18px #ff220066; letter-spacing:4px; line-height:1;
-}
-.quarter-label { font-family:'Rajdhani',sans-serif; font-size:clamp(18px,5vw,30px); font-weight:700; color:#fff; min-width:36px; }
-.top-right { display:flex; gap:6px; align-items:center; }
-.icon-btn {
-  width:44px; height:44px; border-radius:50%; background:#fff; border:none;
-  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; flex-shrink:0;
-}
-.icon-btn:active { transform:scale(.92); }
-.bravo-btn {
-  width:44px; height:44px; border-radius:50%;
-  background:linear-gradient(135deg,#ff6600,#ffcc00); border:none;
-  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px;
-  box-shadow:0 0 12px #ff660088; animation:pulse-bravo 2s infinite;
-}
-.bravo-btn:active { transform:scale(.88); }
-@keyframes pulse-bravo { 0%,100%{box-shadow:0 0 10px #ff660066} 50%{box-shadow:0 0 22px #ff6600cc} }
-
-/* MAIN CONTENT */
-.main-content { flex:1; display:flex; align-items:stretch; min-height:0; padding:0 4px; gap:4px; }
-.left-col,.right-col { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4px 0; }
-.score-btns { display:flex; flex-direction:column; gap:8px; }
-.score-btn {
-  width:44px; height:44px; border-radius:50%; background:#fff; border:none;
-  color:#000; font-size:15px; font-weight:700; font-family:'Rajdhani',sans-serif;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-}
-.score-btn:active { transform:scale(.92); }
-.shot-reset-btns { display:flex; gap:5px; }
-.shot-reset-btn {
-  width:40px; height:40px; border-radius:50%; background:#fff; border:none;
-  color:#000; font-size:14px; font-weight:900; font-family:'Orbitron',monospace;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-}
-.shot-reset-btn:active { transform:scale(.92); }
-
-/* CENTER */
-.center-area { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4px 0; min-width:0; }
-.teams-row { display:flex; width:100%; justify-content:space-between; align-items:center; flex:1; gap:4px; }
-.team-block { display:flex; flex-direction:column; align-items:center; flex:1; }
-.team-name-btn { background:transparent; border:none; color:#fff; font-family:'Rajdhani',sans-serif; font-size:clamp(18px,5vw,30px); font-weight:700; cursor:pointer; letter-spacing:2px; }
-.team-name-btn:active { opacity:.7; }
-.digit-score { font-family:'Orbitron',monospace; font-size:clamp(60px,17vw,130px); font-weight:900; color:#ffee00; line-height:1; letter-spacing:-2px; }
-
-/* FOULS */
-.fouls-row { display:flex; width:100%; justify-content:space-between; align-items:center; padding:2px 0; gap:4px; }
-.dots-group { display:flex; gap:5px; background:transparent; border:2px solid #666; border-radius:20px; padding:5px 10px; cursor:pointer; align-items:center; }
-.dots-group:active { border-color:#aaa; }
-.dot-ind { width:11px; height:11px; border-radius:50%; background:#444; flex-shrink:0; transition:background .12s; }
-.dot-ind.on { background:#fff; box-shadow:0 0 5px #fff; }
-.fouls-center { display:flex; flex-direction:column; align-items:center; gap:2px; }
-.fouls-label-row { display:flex; align-items:center; gap:4px; }
-.fouls-label { color:#cc0000; font-size:clamp(14px,4vw,20px); font-weight:700; letter-spacing:2px; }
-.fouls-arrow-btn { background:none; border:none; cursor:pointer; padding:2px 4px; display:flex; align-items:center; }
-.fouls-arrow-btn:active { opacity:.6; }
-.arrow-l { width:0; height:0; border-top:9px solid transparent; border-bottom:9px solid transparent; border-right:14px solid #cc0000; display:inline-block; }
-.arrow-r { width:0; height:0; border-top:9px solid transparent; border-bottom:9px solid transparent; border-left:14px solid #cc0000; display:inline-block; }
-.fouls-nums { display:flex; justify-content:space-between; width:100%; padding:0 6px; }
-.foul-num { font-family:'Orbitron',monospace; font-size:clamp(13px,3.5vw,20px); font-weight:900; color:#cc0000; min-width:22px; text-align:center; }
-
-/* SHOT ROW */
-.shot-row { display:flex; width:100%; justify-content:center; align-items:center; gap:20px; padding:2px 0 4px; }
-.shot-ctrl-btn { width:34px; height:34px; border-radius:50%; background:#fff; border:none; color:#000; font-size:22px; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.shot-ctrl-btn:active { transform:scale(.9); }
-.shot-digits { display:flex; align-items:center; gap:6px; }
-.shot-digit { font-family:'Orbitron',monospace; font-size:clamp(26px,7vw,52px); font-weight:900; line-height:1; }
-.shot-digit.t1 { color:#ffee00; }
-.shot-digit.t2 { color:#ff8800; }
-.shot-sep { color:#fff; font-size:clamp(20px,5.5vw,38px); font-weight:700; }
-.right-bottom-icons { display:flex; flex-direction:column; gap:6px; align-items:center; }
-.bottom-bar { display:flex; justify-content:center; padding:4px 0 6px; }
-.divider { width:55%; height:3px; background:#fff; border-radius:2px; }
-.wake-dot { position:fixed; top:5px; right:5px; width:7px; height:7px; border-radius:50%; background:#00ff44; opacity:.5; z-index:999; }
-.wake-dot.off { background:#444; }
+/* MAIN */
+.main-content{flex:1;display:flex;align-items:stretch;min-height:0;padding:0 4px;gap:4px}
+.lcol,.rcol{display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:4px 0}
+.sbtngrp{display:flex;flex-direction:column;gap:8px}
+.sbtn{width:44px;height:44px;border-radius:50%;background:#fff;border:none;color:#000;font-size:15px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sbtn:active{transform:scale(.9)}
+.shot-reset-row{display:flex;gap:5px}
+.sreset{width:40px;height:40px;border-radius:50%;background:#fff;border:none;color:#000;font-size:14px;font-weight:900;font-family:'Orbitron',monospace;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sreset:active{transform:scale(.9)}
+.center-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:4px 0;min-width:0}
+.teams-row{display:flex;width:100%;justify-content:space-between;align-items:center;flex:1;gap:4px}
+.tblk{display:flex;flex-direction:column;align-items:center;flex:1}
+.tname{background:transparent;border:none;color:#fff;font-family:'Rajdhani',sans-serif;font-size:clamp(16px,4.5vw,28px);font-weight:700;cursor:pointer;letter-spacing:2px}
+.tname:active{opacity:.7}
+.dscore{font-family:'Orbitron',monospace;font-size:clamp(55px,16vw,120px);font-weight:900;color:#ffee00;line-height:1;letter-spacing:-2px}
+.fouls-row{display:flex;width:100%;justify-content:space-between;align-items:center;padding:2px 0;gap:4px}
+.dotgrp{display:flex;gap:5px;background:transparent;border:2px solid #666;border-radius:20px;padding:5px 10px;cursor:pointer;align-items:center}
+.dotgrp:active{border-color:#aaa}
+.dot{width:11px;height:11px;border-radius:50%;background:#444;flex-shrink:0;transition:background .12s}
+.dot.on{background:#fff;box-shadow:0 0 5px #fff}
+.fouls-center{display:flex;flex-direction:column;align-items:center;gap:2px}
+.fouls-lbl-row{display:flex;align-items:center;gap:4px}
+.flbl{color:#cc0000;font-size:clamp(13px,3.5vw,18px);font-weight:700;letter-spacing:2px}
+.farrow{background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center}
+.farrow:active{opacity:.6}
+.al{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-right:14px solid #cc0000;display:inline-block}
+.ar{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:14px solid #cc0000;display:inline-block}
+.fnums{display:flex;justify-content:space-between;width:100%;padding:0 6px}
+.fnum{font-family:'Orbitron',monospace;font-size:clamp(12px,3vw,18px);font-weight:900;color:#cc0000;min-width:22px;text-align:center}
+.shot-row{display:flex;width:100%;justify-content:center;align-items:center;gap:20px;padding:2px 0 4px}
+.fctrl{width:34px;height:34px;border-radius:50%;background:#fff;border:none;color:#000;font-size:22px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fctrl:active{transform:scale(.9)}
+.shot-digs{display:flex;align-items:center;gap:6px}
+.sd{font-family:'Orbitron',monospace;font-size:clamp(24px,6.5vw,48px);font-weight:900;line-height:1}
+.sd.t1{color:#ffee00}.sd.t2{color:#ff8800}
+.ssep{color:#fff;font-size:clamp(18px,5vw,34px);font-weight:700}
+.rib{display:flex;flex-direction:column;gap:6px;align-items:center}
+.bbar{display:flex;justify-content:center;padding:4px 0 6px}
+.div{width:55%;height:3px;background:#fff;border-radius:2px}
 
 /* MODALS */
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.82); z-index:100; align-items:center; justify-content:center; }
-.modal-overlay.show { display:flex; }
-.modal-box { background:#1a1a1a; border:2px solid #fff; border-radius:16px; padding:22px; width:82%; max-width:320px; display:flex; flex-direction:column; gap:12px; }
-.modal-box h3 { color:#fff; font-size:20px; text-align:center; }
-.modal-input { background:#333; border:1px solid #666; border-radius:8px; color:#fff; font-size:18px; padding:10px; width:100%; text-align:center; font-family:'Rajdhani',sans-serif; -webkit-user-select:auto; user-select:auto; touch-action:auto; }
-.modal-btn { background:#fff; color:#000; border:none; border-radius:8px; padding:12px; font-size:16px; font-weight:700; cursor:pointer; font-family:'Rajdhani',sans-serif; }
-.confirm-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:200; align-items:center; justify-content:center; flex-direction:column; gap:18px; }
-.confirm-modal.show { display:flex; }
-.confirm-modal p { color:#fff; font-size:22px; font-weight:700; }
-.confirm-btns { display:flex; gap:16px; }
-.confirm-yes { background:#e74c3c; color:#fff; border:none; border-radius:10px; padding:14px 28px; font-size:18px; font-weight:700; cursor:pointer; }
-.confirm-no  { background:#555; color:#fff; border:none; border-radius:10px; padding:14px 28px; font-size:18px; font-weight:700; cursor:pointer; }
+.mover{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center}
+.mover.show{display:flex}
+.mbox{background:#1a1a1a;border:2px solid #fff;border-radius:16px;padding:22px;width:84%;max-width:320px;display:flex;flex-direction:column;gap:12px}
+.mbox h3{color:#fff;font-size:20px;text-align:center}
+.minput{background:#333;border:1px solid #666;border-radius:8px;color:#fff;font-size:18px;padding:10px;width:100%;text-align:center;font-family:'Rajdhani',sans-serif;-webkit-user-select:auto;user-select:auto;touch-action:auto}
+.mbtn{background:#fff;color:#000;border:none;border-radius:8px;padding:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif}
+.conf{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:18px}
+.conf.show{display:flex}
+.conf p{color:#fff;font-size:22px;font-weight:700}
+.cbns{display:flex;gap:16px}
+.cyes{background:#e74c3c;color:#fff;border:none;border-radius:10px;padding:14px 28px;font-size:18px;font-weight:700;cursor:pointer}
+.cno{background:#555;color:#fff;border:none;border-radius:10px;padding:14px 28px;font-size:18px;font-weight:700;cursor:pointer}
 
 /* EDIT MODAL */
-#editModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.95); z-index:300; overflow-y:auto; padding:16px; }
-#editModal.show { display:block; }
-.edit-container { max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:14px; padding-bottom:20px; }
-.edit-title { color:#ffcc00; font-family:'Orbitron',monospace; font-size:22px; text-align:center; letter-spacing:2px; }
-.edit-section { background:#1a1a1a; border:1.5px solid #444; border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:10px; }
-.edit-section-title { color:#aaa; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
-.edit-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-.edit-label { color:#fff; font-size:16px; font-weight:600; flex:1; }
-.edit-val { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; color:#00ff88; min-width:60px; text-align:center; }
-.edit-val.yellow { color:#ffee00; }
-.edit-stepper { display:flex; gap:8px; align-items:center; }
-.step-btn { width:38px; height:38px; border-radius:50%; border:none; font-size:20px; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
-.step-btn.minus { background:#c0392b; color:#fff; }
-.step-btn.plus  { background:#27ae60; color:#fff; }
-.step-btn:active { transform:scale(.88); }
-.edit-name-row { display:flex; align-items:center; gap:10px; }
-.edit-name-input { background:#333; border:1px solid #666; border-radius:8px; color:#fff; font-size:16px; padding:8px 12px; flex:1; font-family:'Rajdhani',sans-serif; -webkit-user-select:auto; user-select:auto; touch-action:auto; }
-.edit-save-btn { width:38px; height:38px; border-radius:50%; background:#2980b9; border:none; color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.edit-save-btn:active { transform:scale(.88); }
-.edit-close-btn { background:#fff; color:#000; border:none; border-radius:10px; padding:14px; font-size:18px; font-weight:700; cursor:pointer; font-family:'Rajdhani',sans-serif; }
-.time-edit-row { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
-.time-unit { display:flex; flex-direction:column; align-items:center; gap:4px; }
-.time-unit-label { color:#888; font-size:11px; letter-spacing:1px; }
-.time-val-display { font-family:'Orbitron',monospace; font-size:28px; font-weight:900; color:#ff2200; min-width:60px; text-align:center; background:#111; border-radius:8px; padding:6px 10px; }
-.time-sep { color:#ff2200; font-size:28px; font-weight:900; margin-top:16px; }
-.time-steppers { display:flex; gap:6px; }
-.quarter-names-bar { display:flex; gap:6px; flex-wrap:wrap; }
-.q-name-btn { padding:6px 12px; border-radius:8px; border:2px solid #444; background:#111; color:#888; font-weight:700; font-size:14px; cursor:pointer; }
-.q-name-btn.active { border-color:#ffcc00; color:#ffcc00; background:#2a2200; }
-.q-name-btn:active { transform:scale(.9); }
+#editM{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:300;overflow-y:auto;padding:16px}
+#editM.show{display:block}
+.econ{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding-bottom:20px}
+.etitle{color:#ffcc00;font-family:'Orbitron',monospace;font-size:20px;text-align:center;letter-spacing:2px}
+.esec{background:#1a1a1a;border:1.5px solid #444;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.esect{color:#aaa;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.erow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.elbl{color:#fff;font-size:16px;font-weight:600;flex:1}
+.eval{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:#00ff88;min-width:60px;text-align:center}
+.eval.y{color:#ffee00}
+.estep{display:flex;gap:8px;align-items:center}
+.stpb{width:38px;height:38px;border-radius:50%;border:none;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.stpb.m{background:#c0392b;color:#fff}.stpb.p{background:#27ae60;color:#fff}
+.stpb:active{transform:scale(.88)}
+.eninrow{display:flex;align-items:center;gap:10px}
+.enin{background:#333;border:1px solid #666;border-radius:8px;color:#fff;font-size:16px;padding:8px 12px;flex:1;font-family:'Rajdhani',sans-serif;-webkit-user-select:auto;user-select:auto;touch-action:auto}
+.esaveb{width:38px;height:38px;border-radius:50%;background:#2980b9;border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.esaveb:active{transform:scale(.88)}
+.eclsb{background:#fff;color:#000;border:none;border-radius:10px;padding:14px;font-size:18px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif}
+.terow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.tunit{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tulbl{color:#888;font-size:11px;letter-spacing:1px}
+.tvdisp{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;color:#ff2200;min-width:56px;text-align:center;background:#111;border-radius:8px;padding:6px 8px}
+.tsep{color:#ff2200;font-size:26px;font-weight:900;margin-top:14px}
+.tsteps{display:flex;gap:6px}
+.qbar{display:flex;gap:6px;flex-wrap:wrap}
+.qbtn{padding:6px 12px;border-radius:8px;border:2px solid #444;background:#111;color:#888;font-weight:700;font-size:14px;cursor:pointer}
+.qbtn.act{border-color:#ffcc00;color:#ffcc00;background:#2a2200}
+.qbtn:active{transform:scale(.9)}
 </style>
 </head>
 <body>
-<div class="wake-dot off" id="wakeDot"></div>
 <div class="board">
-
   <div class="top-bar">
-    <!-- Tap shot clock to pause/resume it independently -->
-    <div class="shot-clock-display" id="shotClockTop" onclick="toggleShotClock()">24.0</div>
+    <div class="shot-top" id="shotTop" onclick="toggleShotClock()">24.0</div>
     <div class="top-center">
-      <button class="play-btn" id="playPauseBtn" onclick="toggleTimer()">▶</button>
-      <div class="main-clock" id="mainTimer">10:00</div>
-      <div class="quarter-label" id="quarterLabel">1st</div>
+      <button class="play-btn" id="playBtn" onclick="toggleMainClock()">▶</button>
+      <div class="main-clk" id="mainClk">10:00</div>
+      <div class="qtr-lbl" id="qtrLbl">1st</div>
     </div>
     <div class="top-right">
-      <button class="icon-btn" style="background:#ffcc00;" onclick="openEditModal()">✏️</button>
-      <button class="bravo-btn" onclick="sendBravo()">🎉</button>
-      <button class="icon-btn" onclick="showOptions()">⋯</button>
+      <button class="ico" style="background:#ffcc00" onclick="openEdit()">✏️</button>
+      <button class="bravo-ico" onclick="sendBravo()">🎉</button>
+      <button class="ico" onclick="showOpts()">⋯</button>
     </div>
   </div>
 
   <div class="main-content">
-    <div class="left-col">
-      <div class="score-btns">
-        <button class="score-btn" onclick="addScore(1,1)">+1</button>
-        <button class="score-btn" onclick="addScore(1,2)">+2</button>
-        <button class="score-btn" onclick="addScore(1,3)">+3</button>
+    <div class="lcol">
+      <div class="sbtngrp">
+        <button class="sbtn" onclick="addScore(1,1)">+1</button>
+        <button class="sbtn" onclick="addScore(1,2)">+2</button>
+        <button class="sbtn" onclick="addScore(1,3)">+3</button>
       </div>
-      <div class="shot-reset-btns">
-        <!-- 14 / 24 reset shot clock AND restart it automatically -->
-        <button class="shot-reset-btn" onclick="setShotClock(14)">14</button>
-        <button class="shot-reset-btn" onclick="setShotClock(24)">24</button>
+      <div class="shot-reset-row">
+        <button class="sreset" onclick="setShotClock(14)">14</button>
+        <button class="sreset" onclick="setShotClock(24)">24</button>
       </div>
     </div>
 
     <div class="center-area">
       <div class="teams-row">
-        <div class="team-block">
-          <button class="team-name-btn" onclick="editTeam(1)" id="team1Title">Team 1</button>
-          <div class="digit-score" id="s1">0</div>
+        <div class="tblk">
+          <button class="tname" id="t1name" onclick="editTeam(1)">Team 1</button>
+          <div class="dscore" id="sc1">0</div>
         </div>
-        <div>
-          <svg width="44" height="54" viewBox="0 0 44 54" fill="none">
-            <line x1="4" y1="4" x2="40" y2="50" stroke="white" stroke-width="6" stroke-linecap="round"/>
-            <line x1="40" y1="4" x2="4"  y2="50" stroke="white" stroke-width="6" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="team-block">
-          <button class="team-name-btn" onclick="editTeam(2)" id="team2Title">Team 2</button>
-          <div class="digit-score" id="s2">0</div>
+        <svg width="40" height="50" viewBox="0 0 40 50" fill="none">
+          <line x1="3" y1="3" x2="37" y2="47" stroke="white" stroke-width="5" stroke-linecap="round"/>
+          <line x1="37" y1="3" x2="3"  y2="47" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <div class="tblk">
+          <button class="tname" id="t2name" onclick="editTeam(2)">Team 2</button>
+          <div class="dscore" id="sc2">0</div>
         </div>
       </div>
 
       <div class="fouls-row">
-        <button class="dots-group" onclick="cycleDot(1)">
-          <div class="dot-ind" id="d1_1"></div><div class="dot-ind" id="d1_2"></div>
-          <div class="dot-ind" id="d1_3"></div><div class="dot-ind" id="d1_4"></div>
+        <button class="dotgrp" onclick="cycleDot(1)">
+          <div class="dot" id="d1a"></div><div class="dot" id="d1b"></div>
+          <div class="dot" id="d1c"></div><div class="dot" id="d1d"></div>
         </button>
         <div class="fouls-center">
-          <div class="fouls-label-row">
-            <button class="fouls-arrow-btn" onclick="subtractFoul(1)"><span class="arrow-l"></span></button>
-            <span class="fouls-label">Fouls</span>
-            <button class="fouls-arrow-btn" onclick="subtractFoul(2)"><span class="arrow-r"></span></button>
+          <div class="fouls-lbl-row">
+            <button class="farrow" onclick="chgFoul(1,-1)"><span class="al"></span></button>
+            <span class="flbl">Fouls</span>
+            <button class="farrow" onclick="chgFoul(2,-1)"><span class="ar"></span></button>
           </div>
-          <div class="fouls-nums">
-            <span class="foul-num" id="foulNum1">0</span>
-            <span class="foul-num" id="foulNum2">0</span>
+          <div class="fnums">
+            <span class="fnum" id="fn1">0</span>
+            <span class="fnum" id="fn2">0</span>
           </div>
         </div>
-        <button class="dots-group" onclick="cycleDot(2)">
-          <div class="dot-ind" id="d2_1"></div><div class="dot-ind" id="d2_2"></div>
-          <div class="dot-ind" id="d2_3"></div><div class="dot-ind" id="d2_4"></div>
+        <button class="dotgrp" onclick="cycleDot(2)">
+          <div class="dot" id="d2a"></div><div class="dot" id="d2b"></div>
+          <div class="dot" id="d2c"></div><div class="dot" id="d2d"></div>
         </button>
       </div>
 
       <div class="shot-row">
-        <button class="shot-ctrl-btn" onclick="addFoul(1)">+</button>
-        <div class="shot-digits">
-          <div class="shot-digit t1" id="shotD1">0</div>
-          <div class="shot-sep">x</div>
-          <div class="shot-digit t2" id="shotD2">0</div>
+        <button class="fctrl" onclick="chgFoul(1,1)">+</button>
+        <div class="shot-digs">
+          <div class="sd t1" id="fd1">0</div>
+          <div class="ssep">x</div>
+          <div class="sd t2" id="fd2">0</div>
         </div>
-        <button class="shot-ctrl-btn" onclick="addFoul(2)">+</button>
+        <button class="fctrl" onclick="chgFoul(2,1)">+</button>
       </div>
     </div>
 
-    <div class="right-col">
-      <div class="score-btns">
-        <button class="score-btn" onclick="addScore(2,1)">+1</button>
-        <button class="score-btn" onclick="addScore(2,2)">+2</button>
-        <button class="score-btn" onclick="addScore(2,3)">+3</button>
+    <div class="rcol">
+      <div class="sbtngrp">
+        <button class="sbtn" onclick="addScore(2,1)">+1</button>
+        <button class="sbtn" onclick="addScore(2,2)">+2</button>
+        <button class="sbtn" onclick="addScore(2,3)">+3</button>
       </div>
-      <div class="right-bottom-icons">
-        <button class="icon-btn" onclick="resetShotClock()">🔔</button>
-        <button class="icon-btn" onclick="undoScore()">↩</button>
+      <div class="rib">
+        <button class="ico" onclick="setShotClock(24)">🔔</button>
+        <button class="ico" onclick="undoScore()">↩</button>
       </div>
     </div>
   </div>
-
-  <div class="bottom-bar"><div class="divider"></div></div>
+  <div class="bbar"><div class="div"></div></div>
 </div>
 
-<!-- TEAM NAME MODAL -->
-<div class="modal-overlay" id="teamModal">
-  <div class="modal-box">
-    <h3 id="modalTitle">Edit Team Name</h3>
-    <input type="text" class="modal-input" id="teamNameInput" placeholder="Enter name...">
-    <button class="modal-btn" onclick="saveTeamName()">Save</button>
-    <button class="modal-btn" style="background:#333;color:#fff;" onclick="closeModal()">Cancel</button>
+<!-- Team name modal -->
+<div class="mover" id="teamM">
+  <div class="mbox">
+    <h3 id="teamMtitle">Edit Name</h3>
+    <input class="minput" type="text" id="teamMinput">
+    <button class="mbtn" onclick="saveTeamName()">Save</button>
+    <button class="mbtn" style="background:#333;color:#fff" onclick="closeTeamM()">Cancel</button>
   </div>
 </div>
 
-<!-- OPTIONS MODAL -->
-<div class="modal-overlay" id="optionsModal">
-  <div class="modal-box">
+<!-- Options modal -->
+<div class="mover" id="optsM">
+  <div class="mbox">
     <h3>Options</h3>
-    <button class="modal-btn" onclick="prevQuarter();closeOptions()">◀ Prev Quarter</button>
-    <button class="modal-btn" onclick="nextQuarter();closeOptions()">Next Quarter ▶</button>
-    <button class="modal-btn" onclick="resetQuarterTimer();closeOptions()">Reset Quarter Timer</button>
-    <button class="modal-btn" onclick="toggleFullscreen();closeOptions()">⛶ Fullscreen</button>
-    <button class="modal-btn" style="background:#e74c3c;color:#fff;" onclick="closeOptions();resetMatch()">Reset Match</button>
-    <button class="modal-btn" style="background:#333;color:#fff;" onclick="closeOptions()">Close</button>
+    <button class="mbtn" onclick="prevQtr();closeOpts()">◀ Prev Quarter</button>
+    <button class="mbtn" onclick="nextQtr();closeOpts()">Next Quarter ▶</button>
+    <button class="mbtn" onclick="resetQtrTimer();closeOpts()">Reset Timer</button>
+    <button class="mbtn" onclick="goFS();closeOpts()">⛶ Fullscreen</button>
+    <button class="mbtn" style="background:#e74c3c;color:#fff" onclick="closeOpts();confirmReset()">Reset Match</button>
+    <button class="mbtn" style="background:#333;color:#fff" onclick="closeOpts()">Close</button>
   </div>
 </div>
 
-<!-- CONFIRM RESET -->
-<div class="confirm-modal" id="confirmModal">
+<!-- Confirm reset -->
+<div class="conf" id="confM">
   <p>Reset the whole match?</p>
-  <div class="confirm-btns">
-    <button class="confirm-yes" onclick="doReset()">Yes, Reset</button>
-    <button class="confirm-no" onclick="document.getElementById('confirmModal').classList.remove('show')">Cancel</button>
+  <div class="cbns">
+    <button class="cyes" onclick="doReset()">Yes, Reset</button>
+    <button class="cno" onclick="document.getElementById('confM').classList.remove('show')">Cancel</button>
   </div>
 </div>
 
-<!-- FULL EDIT MODAL -->
-<div id="editModal">
-  <div class="edit-container">
-    <div class="edit-title">✏️ EDIT MODE</div>
-    <div class="edit-section">
-      <div class="edit-section-title">⏱ Main Clock</div>
-      <div class="time-edit-row">
-        <div class="time-unit">
-          <div class="time-unit-label">MIN</div>
-          <div class="time-steppers"><button class="step-btn minus" onclick="adjustTime('min',-1)">−</button></div>
-          <div class="time-val-display" id="editMin">10</div>
-          <div class="time-steppers"><button class="step-btn plus" onclick="adjustTime('min',1)">+</button></div>
+<!-- Full Edit Modal -->
+<div id="editM">
+  <div class="econ">
+    <div class="etitle">✏️ EDIT MODE</div>
+
+    <div class="esec">
+      <div class="esect">⏱ Main Clock</div>
+      <div class="terow">
+        <div class="tunit">
+          <div class="tulbl">MIN</div>
+          <div class="tsteps"><button class="stpb m" onclick="adjTime('m',-1)">−</button></div>
+          <div class="tvdisp" id="eMin">10</div>
+          <div class="tsteps"><button class="stpb p" onclick="adjTime('m',1)">+</button></div>
         </div>
-        <div class="time-sep">:</div>
-        <div class="time-unit">
-          <div class="time-unit-label">SEC</div>
-          <div class="time-steppers"><button class="step-btn minus" onclick="adjustTime('sec',-1)">−</button></div>
-          <div class="time-val-display" id="editSec">00</div>
-          <div class="time-steppers"><button class="step-btn plus" onclick="adjustTime('sec',1)">+</button></div>
-        </div>
-      </div>
-    </div>
-    <div class="edit-section">
-      <div class="edit-section-title">🟡 Shot Clock (sec)</div>
-      <div class="edit-row">
-        <div class="edit-label">Shot Clock</div>
-        <div class="edit-stepper">
-          <button class="step-btn minus" onclick="adjustShotEdit(-1)">−</button>
-          <div class="edit-val" id="editShot">24</div>
-          <button class="step-btn plus" onclick="adjustShotEdit(1)">+</button>
+        <div class="tsep">:</div>
+        <div class="tunit">
+          <div class="tulbl">SEC</div>
+          <div class="tsteps"><button class="stpb m" onclick="adjTime('s',-1)">−</button></div>
+          <div class="tvdisp" id="eSec">00</div>
+          <div class="tsteps"><button class="stpb p" onclick="adjTime('s',1)">+</button></div>
         </div>
       </div>
     </div>
-    <div class="edit-section">
-      <div class="edit-section-title">🏀 Quarter</div>
-      <div class="quarter-names-bar">
-        <button class="q-name-btn" onclick="setQuarterEdit(1)">1st</button>
-        <button class="q-name-btn" onclick="setQuarterEdit(2)">2nd</button>
-        <button class="q-name-btn" onclick="setQuarterEdit(3)">3rd</button>
-        <button class="q-name-btn" onclick="setQuarterEdit(4)">4th</button>
-      </div>
-    </div>
-    <div class="edit-section">
-      <div class="edit-section-title">🟡 Team 1</div>
-      <div class="edit-name-row">
-        <input type="text" class="edit-name-input" id="editName1" placeholder="Team 1 name">
-        <button class="edit-save-btn" onclick="saveEditName(1)">✓</button>
-      </div>
-      <div class="edit-row">
-        <div class="edit-label">Score</div>
-        <div class="edit-stepper">
-          <button class="step-btn minus" onclick="adjustScore(1,-1)">−</button>
-          <div class="edit-val yellow" id="editS1">0</div>
-          <button class="step-btn plus" onclick="adjustScore(1,1)">+</button>
-        </div>
-      </div>
-      <div class="edit-row">
-        <div class="edit-label">Fouls</div>
-        <div class="edit-stepper">
-          <button class="step-btn minus" onclick="adjustFoulEdit(1,-1)">−</button>
-          <div class="edit-val" id="editF1">0</div>
-          <button class="step-btn plus" onclick="adjustFoulEdit(1,1)">+</button>
+
+    <div class="esec">
+      <div class="esect">🟡 Shot Clock (sec)</div>
+      <div class="erow">
+        <div class="elbl">Shot Clock</div>
+        <div class="estep">
+          <button class="stpb m" onclick="adjShot(-1)">−</button>
+          <div class="eval" id="eShot">24</div>
+          <button class="stpb p" onclick="adjShot(1)">+</button>
         </div>
       </div>
     </div>
-    <div class="edit-section">
-      <div class="edit-section-title">🟠 Team 2</div>
-      <div class="edit-name-row">
-        <input type="text" class="edit-name-input" id="editName2" placeholder="Team 2 name">
-        <button class="edit-save-btn" onclick="saveEditName(2)">✓</button>
+
+    <div class="esec">
+      <div class="esect">🏀 Quarter</div>
+      <div class="qbar">
+        <button class="qbtn" onclick="setQtrEdit(1)">1st</button>
+        <button class="qbtn" onclick="setQtrEdit(2)">2nd</button>
+        <button class="qbtn" onclick="setQtrEdit(3)">3rd</button>
+        <button class="qbtn" onclick="setQtrEdit(4)">4th</button>
       </div>
-      <div class="edit-row">
-        <div class="edit-label">Score</div>
-        <div class="edit-stepper">
-          <button class="step-btn minus" onclick="adjustScore(2,-1)">−</button>
-          <div class="edit-val yellow" id="editS2">0</div>
-          <button class="step-btn plus" onclick="adjustScore(2,1)">+</button>
+    </div>
+
+    <div class="esec">
+      <div class="esect">🟡 Team 1</div>
+      <div class="eninrow">
+        <input class="enin" type="text" id="en1" placeholder="Team 1">
+        <button class="esaveb" onclick="saveEName(1)">✓</button>
+      </div>
+      <div class="erow">
+        <div class="elbl">Score</div>
+        <div class="estep">
+          <button class="stpb m" onclick="adjScore(1,-1)">−</button>
+          <div class="eval y" id="es1">0</div>
+          <button class="stpb p" onclick="adjScore(1,1)">+</button>
         </div>
       </div>
-      <div class="edit-row">
-        <div class="edit-label">Fouls</div>
-        <div class="edit-stepper">
-          <button class="step-btn minus" onclick="adjustFoulEdit(2,-1)">−</button>
-          <div class="edit-val" id="editF2">0</div>
-          <button class="step-btn plus" onclick="adjustFoulEdit(2,1)">+</button>
+      <div class="erow">
+        <div class="elbl">Fouls</div>
+        <div class="estep">
+          <button class="stpb m" onclick="adjFoul(1,-1)">−</button>
+          <div class="eval" id="ef1">0</div>
+          <button class="stpb p" onclick="adjFoul(1,1)">+</button>
         </div>
       </div>
     </div>
-    <button class="edit-close-btn" onclick="closeEditModal()">✅ Done — Close Edit</button>
+
+    <div class="esec">
+      <div class="esect">🟠 Team 2</div>
+      <div class="eninrow">
+        <input class="enin" type="text" id="en2" placeholder="Team 2">
+        <button class="esaveb" onclick="saveEName(2)">✓</button>
+      </div>
+      <div class="erow">
+        <div class="elbl">Score</div>
+        <div class="estep">
+          <button class="stpb m" onclick="adjScore(2,-1)">−</button>
+          <div class="eval y" id="es2">0</div>
+          <button class="stpb p" onclick="adjScore(2,1)">+</button>
+        </div>
+      </div>
+      <div class="erow">
+        <div class="elbl">Fouls</div>
+        <div class="estep">
+          <button class="stpb m" onclick="adjFoul(2,-1)">−</button>
+          <div class="eval" id="ef2">0</div>
+          <button class="stpb p" onclick="adjFoul(2,1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="eclsb" onclick="closeEdit()">✅ Done</button>
   </div>
 </div>
 
@@ -389,13 +344,13 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; font-fam
 /* prevent zoom */
 document.addEventListener('touchmove',e=>{if(e.scale!==1)e.preventDefault();},{passive:false});
 document.addEventListener('gesturestart',e=>e.preventDefault());
-document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
-let _lte=0;
-document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lte<=300)e.preventDefault();_lte=n;},false);
+document.addEventListener('dblclick',e=>e.preventDefault());
+let _lt=0;
+document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lt<=300)e.preventDefault();_lt=n;},false);
 document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 
-/* Firebase */
-const firebaseConfig={
+/* ── Firebase init ── */
+firebase.initializeApp({
   apiKey:"AIzaSyDr78eta_v2AOxrll2mTX8noI805qPtifA",
   authDomain:"ok-new-7c868.firebaseapp.com",
   databaseURL:"https://ok-new-7c868-default-rtdb.firebaseio.com",
@@ -403,313 +358,295 @@ const firebaseConfig={
   storageBucket:"ok-new-7c868.firebasestorage.app",
   messagingSenderId:"760753992927",
   appId:"1:760753992927:web:8702569c9c7c45be7fe56a"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
+});
+const db = firebase.database();
+const REF = db.ref('live'); // single node — whole state in one write
 
-const QUARTER_NAMES=['1st','2nd','3rd','4th'];
-const QUARTER_DURATION=600;
+/* ── Constants ── */
+const QN = ['1st','2nd','3rd','4th'];
+const QD = 600; // 10 min
 
-function load(){try{const s=localStorage.getItem('bbScore');return s?JSON.parse(s):{}}catch(e){return{}}}
-const sv=load();
+/* ── State ── */
+function ld(){try{return JSON.parse(localStorage.getItem('bb')||'{}')}catch(e){return{}}}
+const S = ld();
 
-let score1=sv.score1??0, score2=sv.score2??0;
-let foul1=sv.foul1??0,   foul2=sv.foul2??0;
-let dots1=sv.dots1??0,   dots2=sv.dots2??0;
-let currentQuarter=sv.currentQuarter??1;
-let team1Name=sv.team1Name??'Team 1', team2Name=sv.team2Name??'Team 2';
-let mainRemaining=sv.mainRemaining??QUARTER_DURATION;
-let shotSecs=sv.shotSecs??24, shotTenths=sv.shotTenths??0;
-let lastScore1=score1, lastScore2=score2, editingTeam=0;
+let sc1=S.sc1??0, sc2=S.sc2??0;
+let f1=S.f1??0,   f2=S.f2??0;
+let dt1=S.dt1??0, dt2=S.dt2??0;
+let qtr=S.qtr??1;
+let tn1=S.tn1??'Team 1', tn2=S.tn2??'Team 2';
+let mainSec=S.mainSec??QD;          // main clock seconds remaining
+let shot=S.shot??24;                // shot clock whole seconds
+let shotMs=S.shotMs??0;             // shot clock milliseconds (0-999)
+let prev1=sc1, prev2=sc2;
+let editingT=0;
 
-/* Timer state */
+/* ── Timer machinery ── */
 let mainRunning=false, shotRunning=false;
-let mainInterval=null, shotInterval=null;
+let mainTick=null, shotTick=null;
+let mainLast=0, shotLast=0;
 
+/* ── Persist ── */
 function save(){
-  try{localStorage.setItem('bbScore',JSON.stringify({
-    score1,score2,foul1,foul2,dots1,dots2,
-    currentQuarter,team1Name,team2Name,mainRemaining,shotSecs,shotTenths
-  }));}catch(e){}
+  try{localStorage.setItem('bb',JSON.stringify({sc1,sc2,f1,f2,dt1,dt2,qtr,tn1,tn2,mainSec,shot,shotMs}))}catch(e){}
 }
 
-/* Wake lock */
-let wakeLock=null;
-async function requestWakeLock(){
-  if('wakeLock' in navigator){
-    try{
-      wakeLock=await navigator.wakeLock.request('screen');
-      document.getElementById('wakeDot').classList.remove('off');
-      wakeLock.addEventListener('release',()=>document.getElementById('wakeDot').classList.add('off'));
-    }catch(e){}
+/* ── Firebase push — ONE node, everything ── */
+let fbThrottle=null;
+function push(immediate){
+  if(immediate){
+    _doPush();
+  } else {
+    if(fbThrottle) return;
+    fbThrottle=setTimeout(()=>{fbThrottle=null;_doPush();},200);
   }
 }
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')requestWakeLock();});
-requestWakeLock();
-
-function toggleFullscreen(){
-  if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
-  else document.exitFullscreen&&document.exitFullscreen();
+function _doPush(){
+  try{
+    REF.set({
+      sc1,sc2,f1,f2,qtr,tn1,tn2,
+      mainSec,
+      shot,
+      shotMs,
+      mainRunning,
+      shotRunning,
+      ts:Date.now()
+    });
+  }catch(e){}
 }
 
 /* ── RENDER ── */
 function renderAll(){
-  document.getElementById('s1').textContent=score1;
-  document.getElementById('s2').textContent=score2;
-  document.getElementById('team1Title').textContent=team1Name;
-  document.getElementById('team2Title').textContent=team2Name;
-  document.getElementById('quarterLabel').textContent=QUARTER_NAMES[(currentQuarter-1)%4];
-  document.getElementById('foulNum1').textContent=foul1;
-  document.getElementById('foulNum2').textContent=foul2;
-  document.getElementById('shotD1').textContent=foul1;
-  document.getElementById('shotD2').textContent=foul2;
-  for(let i=1;i<=4;i++){
-    document.getElementById('d1_'+i).classList.toggle('on',i<=dots1);
-    document.getElementById('d2_'+i).classList.toggle('on',i<=dots2);
-  }
-  renderMain(); renderShot();
+  document.getElementById('sc1').textContent=sc1;
+  document.getElementById('sc2').textContent=sc2;
+  document.getElementById('t1name').textContent=tn1;
+  document.getElementById('t2name').textContent=tn2;
+  document.getElementById('qtrLbl').textContent=QN[(qtr-1)%4];
+  document.getElementById('fn1').textContent=f1;
+  document.getElementById('fn2').textContent=f2;
+  document.getElementById('fd1').textContent=f1;
+  document.getElementById('fd2').textContent=f2;
+  ['a','b','c','d'].forEach((l,i)=>{
+    document.getElementById('d1'+l).classList.toggle('on',i<dt1);
+    document.getElementById('d2'+l).classList.toggle('on',i<dt2);
+  });
+  rMain(); rShot();
 }
-function renderMain(){
-  const m=Math.floor(mainRemaining/60), s=mainRemaining%60;
-  document.getElementById('mainTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+function rMain(){
+  const m=Math.floor(mainSec/60), s=mainSec%60;
+  document.getElementById('mainClk').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
-function renderShot(){
-  const el=document.getElementById('shotClockTop');
-  el.textContent=String(shotSecs).padStart(2,'0')+'.'+shotTenths;
-  el.className='shot-clock-display'+(shotRunning&&shotSecs>=5?' running':shotRunning&&shotSecs<5?' danger':'');
+function rShot(){
+  const el=document.getElementById('shotTop');
+  const d=(Math.floor(shotMs/100));
+  el.textContent=String(shot).padStart(2,'0')+'.'+d;
+  el.className='shot-top'+(shotRunning&&shot>=5?' run':shotRunning&&shot<5?' danger':'');
 }
 
 /* ── MAIN CLOCK ── */
-function toggleTimer(){
-  if(mainRunning){
-    pauseAll();
-    document.getElementById('playPauseBtn').textContent='▶';
-  } else {
-    startAll();
-    document.getElementById('playPauseBtn').textContent='⏸';
-  }
+function toggleMainClock(){
+  if(mainRunning){ stopAll(); }
+  else           { startAll(); }
 }
 function startAll(){
-  startMainClock();
-  startShotClock();
+  startMain();
+  startShot();
+  document.getElementById('playBtn').textContent='⏸';
 }
-function pauseAll(){
-  stopMainClock();
-  stopShotClock();
+function stopAll(){
+  stopMain();
+  stopShot();
+  document.getElementById('playBtn').textContent='▶';
+  push(true);
 }
-function startMainClock(){
-  if(mainRunning)return;
+function startMain(){
+  if(mainRunning) return;
   mainRunning=true;
-  mainInterval=setInterval(()=>{
-    if(mainRemaining<=0){
-      stopMainClock(); stopShotClock();
-      document.getElementById('playPauseBtn').textContent='▶';
-      save(); pushFirebaseTimer(); return;
-    }
-    mainRemaining--;
-    renderMain();
-    pushFirebaseTimer(); // push every second
+  mainLast=Date.now();
+  mainTick=setInterval(()=>{
+    const now=Date.now();
+    const elapsed=now-mainLast;
+    mainLast=now;
+    mainSec=Math.max(0, mainSec - Math.round(elapsed/1000));
+    rMain();
+    push();
+    if(mainSec<=0){ stopAll(); save(); }
   },1000);
 }
-function stopMainClock(){
+function stopMain(){
   mainRunning=false;
-  clearInterval(mainInterval); mainInterval=null;
+  clearInterval(mainTick); mainTick=null;
   save();
 }
-function resetQuarterTimer(){
-  stopMainClock(); stopShotClock();
-  document.getElementById('playPauseBtn').textContent='▶';
-  mainRemaining=QUARTER_DURATION;
-  shotSecs=24; shotTenths=0;
-  renderAll(); save(); pushFirebaseTimer();
+function resetQtrTimer(){
+  stopAll();
+  mainSec=QD; shot=24; shotMs=0;
+  renderAll(); save(); push(true);
 }
 
 /* ── SHOT CLOCK ── */
 function toggleShotClock(){
-  if(shotRunning)stopShotClock();
-  else startShotClock();
+  if(shotRunning) stopShot();
+  else            startShot();
+  push(true);
 }
-function startShotClock(){
-  if(shotRunning)return;
-  if(shotSecs<=0&&shotTenths<=0)return;
+function startShot(){
+  if(shotRunning) return;
+  if(shot<=0 && shotMs<=0) return;
   shotRunning=true;
-  renderShot();
-  shotInterval=setInterval(()=>{
-    if(shotTenths===0){
-      if(shotSecs===0){
-        stopShotClock();
-        renderShot(); pushFirebaseTimer(); return;
-      }
-      shotSecs--; shotTenths=9;
-    } else {
-      shotTenths--;
-    }
-    renderShot();
-    if(shotTenths===0) pushFirebaseTimer(); // push each full second
+  shotLast=Date.now();
+  rShot();
+  shotTick=setInterval(()=>{
+    const now=Date.now();
+    const elapsed=now-shotLast; // ms elapsed
+    shotLast=now;
+    // subtract elapsed ms
+    let total = shot*1000 + shotMs - elapsed;
+    if(total<=0){ total=0; stopShot(); push(true); }
+    shot=Math.floor(total/1000);
+    shotMs=total%1000;
+    rShot();
+    // push every ~500ms to keep display in sync
+    push();
   },100);
 }
-function stopShotClock(){
+function stopShot(){
   shotRunning=false;
-  clearInterval(shotInterval); shotInterval=null;
-  renderShot(); save();
+  clearInterval(shotTick); shotTick=null;
+  rShot(); save();
 }
 
-/* Reset shot clock to val — ALWAYS restart it (14/24 buttons) */
+/* setShotClock: press 14 or 24 — always starts BOTH clocks */
 function setShotClock(val){
-  stopShotClock();
-  shotSecs=val; shotTenths=0;
-  renderShot();
-  // Start shot clock immediately when 14/24 pressed, whether main is running or not
-  startShotClock();
-  // If main clock was NOT running, also start it
+  stopShot();
+  shot=val; shotMs=0;
+  rShot();
+  // always start shot clock
+  startShot();
+  // also start main clock if not already running
   if(!mainRunning){
-    startMainClock();
-    document.getElementById('playPauseBtn').textContent='⏸';
+    startMain();
+    document.getElementById('playBtn').textContent='⏸';
   }
-  save(); pushFirebaseTimer();
+  save(); push(true);
 }
-function resetShotClock(){setShotClock(24);}
 
 /* ── QUARTER ── */
-function nextQuarter(){if(currentQuarter<4)currentQuarter++;resetQuarterTimer();renderAll();pushFirebase();}
-function prevQuarter(){if(currentQuarter>1)currentQuarter--;resetQuarterTimer();renderAll();pushFirebase();}
+function nextQtr(){if(qtr<4)qtr++;resetQtrTimer();renderAll();push(true);}
+function prevQtr(){if(qtr>1)qtr--;resetQtrTimer();renderAll();push(true);}
 
 /* ── SCORE ── */
-function addScore(team,pts){
-  if(team===1){lastScore1=score1;score1+=pts;}
-  else        {lastScore2=score2;score2+=pts;}
-  renderAll();save();pushFirebase();
+function addScore(t,pts){
+  if(t===1){prev1=sc1;sc1+=pts;}else{prev2=sc2;sc2+=pts;}
+  renderAll();save();push(true);
 }
-function undoScore(){score1=lastScore1;score2=lastScore2;renderAll();save();pushFirebase();}
+function undoScore(){sc1=prev1;sc2=prev2;renderAll();save();push(true);}
 
 /* ── FOULS ── */
-function addFoul(team)     {if(team===1)foul1++;else foul2++;renderAll();save();}
-function subtractFoul(team){if(team===1)foul1=Math.max(0,foul1-1);else foul2=Math.max(0,foul2-1);renderAll();save();}
+function chgFoul(t,d){
+  if(t===1)f1=Math.max(0,f1+d);else f2=Math.max(0,f2+d);
+  renderAll();save();push(true);
+}
 
 /* ── DOTS ── */
-function cycleDot(team){
-  if(team===1)dots1=dots1>=4?0:dots1+1;
-  else        dots2=dots2>=4?0:dots2+1;
+function cycleDot(t){
+  if(t===1)dt1=dt1>=4?0:dt1+1;else dt2=dt2>=4?0:dt2+1;
   renderAll();save();
 }
 
 /* ── RESET ── */
-function resetMatch(){document.getElementById('confirmModal').classList.add('show');}
+function confirmReset(){document.getElementById('confM').classList.add('show');}
 function doReset(){
-  document.getElementById('confirmModal').classList.remove('show');
-  score1=score2=foul1=foul2=dots1=dots2=0;
-  lastScore1=lastScore2=0; currentQuarter=1;
-  stopMainClock();stopShotClock();
-  document.getElementById('playPauseBtn').textContent='▶';
-  mainRemaining=QUARTER_DURATION; shotSecs=24; shotTenths=0;
-  renderAll();save();pushFirebase();pushFirebaseTimer();
+  document.getElementById('confM').classList.remove('show');
+  sc1=sc2=f1=f2=dt1=dt2=0; prev1=prev2=0; qtr=1;
+  stopAll(); mainSec=QD; shot=24; shotMs=0;
+  renderAll();save();push(true);
 }
 
-/* ── TEAM MODAL ── */
+/* ── TEAM NAME ── */
 function editTeam(t){
-  editingTeam=t;
-  document.getElementById('modalTitle').textContent='Edit '+(t===1?team1Name:team2Name);
-  document.getElementById('teamNameInput').value=t===1?team1Name:team2Name;
-  document.getElementById('teamModal').classList.add('show');
-  setTimeout(()=>document.getElementById('teamNameInput').focus(),100);
+  editingT=t;
+  document.getElementById('teamMtitle').textContent='Edit '+(t===1?tn1:tn2);
+  document.getElementById('teamMinput').value=t===1?tn1:tn2;
+  document.getElementById('teamM').classList.add('show');
+  setTimeout(()=>document.getElementById('teamMinput').focus(),100);
 }
 function saveTeamName(){
-  const val=document.getElementById('teamNameInput').value.trim();
-  if(val){if(editingTeam===1)team1Name=val;else team2Name=val;}
-  closeModal();renderAll();save();pushFirebase();
+  const v=document.getElementById('teamMinput').value.trim();
+  if(v){if(editingT===1)tn1=v;else tn2=v;}
+  closeTeamM();renderAll();save();push(true);
 }
-function closeModal(){document.getElementById('teamModal').classList.remove('show');}
+function closeTeamM(){document.getElementById('teamM').classList.remove('show');}
 
 /* ── OPTIONS ── */
-function showOptions() {document.getElementById('optionsModal').classList.add('show');}
-function closeOptions(){document.getElementById('optionsModal').classList.remove('show');}
+function showOpts(){document.getElementById('optsM').classList.add('show');}
+function closeOpts(){document.getElementById('optsM').classList.remove('show');}
+function goFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen();}
 
-/* ── FULL EDIT MODAL ── */
-function openEditModal(){
-  const m=Math.floor(mainRemaining/60),s=mainRemaining%60;
-  document.getElementById('editMin').textContent=String(m).padStart(2,'0');
-  document.getElementById('editSec').textContent=String(s).padStart(2,'0');
-  document.getElementById('editShot').textContent=shotSecs;
-  document.getElementById('editS1').textContent=score1;
-  document.getElementById('editS2').textContent=score2;
-  document.getElementById('editF1').textContent=foul1;
-  document.getElementById('editF2').textContent=foul2;
-  document.getElementById('editName1').value=team1Name;
-  document.getElementById('editName2').value=team2Name;
-  document.querySelectorAll('.q-name-btn').forEach((btn,i)=>btn.classList.toggle('active',i+1===currentQuarter));
-  document.getElementById('editModal').classList.add('show');
+/* ── EDIT MODAL ── */
+function openEdit(){
+  document.getElementById('eMin').textContent=String(Math.floor(mainSec/60)).padStart(2,'0');
+  document.getElementById('eSec').textContent=String(mainSec%60).padStart(2,'0');
+  document.getElementById('eShot').textContent=shot;
+  document.getElementById('es1').textContent=sc1;
+  document.getElementById('es2').textContent=sc2;
+  document.getElementById('ef1').textContent=f1;
+  document.getElementById('ef2').textContent=f2;
+  document.getElementById('en1').value=tn1;
+  document.getElementById('en2').value=tn2;
+  document.querySelectorAll('.qbtn').forEach((b,i)=>b.classList.toggle('act',i+1===qtr));
+  document.getElementById('editM').classList.add('show');
 }
-function closeEditModal(){
-  document.getElementById('editModal').classList.remove('show');
-  renderAll();save();pushFirebase();pushFirebaseTimer();
+function closeEdit(){
+  document.getElementById('editM').classList.remove('show');
+  renderAll();save();push(true);
 }
-function adjustTime(unit,delta){
-  let m=parseInt(document.getElementById('editMin').textContent)||0;
-  let s=parseInt(document.getElementById('editSec').textContent)||0;
-  if(unit==='min')m=Math.max(0,Math.min(59,m+delta));
-  if(unit==='sec')s=Math.max(0,Math.min(59,s+delta));
-  mainRemaining=m*60+s;
-  document.getElementById('editMin').textContent=String(m).padStart(2,'0');
-  document.getElementById('editSec').textContent=String(s).padStart(2,'0');
-  renderMain();
+function adjTime(u,d){
+  let m=parseInt(document.getElementById('eMin').textContent)||0;
+  let s=parseInt(document.getElementById('eSec').textContent)||0;
+  if(u==='m')m=Math.max(0,Math.min(59,m+d));
+  else       s=Math.max(0,Math.min(59,s+d));
+  mainSec=m*60+s;
+  document.getElementById('eMin').textContent=String(m).padStart(2,'0');
+  document.getElementById('eSec').textContent=String(s).padStart(2,'0');
+  rMain();
 }
-function adjustShotEdit(delta){
-  stopShotClock();
-  shotSecs=Math.max(0,Math.min(60,shotSecs+delta)); shotTenths=0;
-  document.getElementById('editShot').textContent=shotSecs;
-  renderShot();
+function adjShot(d){
+  stopShot(); shot=Math.max(0,Math.min(60,shot+d)); shotMs=0;
+  document.getElementById('eShot').textContent=shot; rShot();
 }
-function setQuarterEdit(q){
-  currentQuarter=q;
-  document.querySelectorAll('.q-name-btn').forEach((btn,i)=>btn.classList.toggle('active',i+1===q));
-  document.getElementById('quarterLabel').textContent=QUARTER_NAMES[(q-1)%4];
+function setQtrEdit(q){
+  qtr=q;
+  document.querySelectorAll('.qbtn').forEach((b,i)=>b.classList.toggle('act',i+1===q));
+  document.getElementById('qtrLbl').textContent=QN[(q-1)%4];
 }
-function adjustScore(team,delta){
-  if(team===1){score1=Math.max(0,score1+delta);document.getElementById('editS1').textContent=score1;document.getElementById('s1').textContent=score1;}
-  else        {score2=Math.max(0,score2+delta);document.getElementById('editS2').textContent=score2;document.getElementById('s2').textContent=score2;}
+function adjScore(t,d){
+  if(t===1){sc1=Math.max(0,sc1+d);document.getElementById('es1').textContent=sc1;document.getElementById('sc1').textContent=sc1;}
+  else     {sc2=Math.max(0,sc2+d);document.getElementById('es2').textContent=sc2;document.getElementById('sc2').textContent=sc2;}
 }
-function adjustFoulEdit(team,delta){
-  if(team===1){foul1=Math.max(0,foul1+delta);document.getElementById('editF1').textContent=foul1;}
-  else        {foul2=Math.max(0,foul2+delta);document.getElementById('editF2').textContent=foul2;}
-  document.getElementById('foulNum1').textContent=foul1;
-  document.getElementById('foulNum2').textContent=foul2;
-  document.getElementById('shotD1').textContent=foul1;
-  document.getElementById('shotD2').textContent=foul2;
+function adjFoul(t,d){
+  if(t===1){f1=Math.max(0,f1+d);document.getElementById('ef1').textContent=f1;}
+  else     {f2=Math.max(0,f2+d);document.getElementById('ef2').textContent=f2;}
+  document.getElementById('fn1').textContent=f1;document.getElementById('fn2').textContent=f2;
+  document.getElementById('fd1').textContent=f1;document.getElementById('fd2').textContent=f2;
 }
-function saveEditName(team){
-  const val=document.getElementById('editName'+team).value.trim();
-  if(val){
-    if(team===1){team1Name=val;document.getElementById('team1Title').textContent=val;}
-    else        {team2Name=val;document.getElementById('team2Title').textContent=val;}
-  }
+function saveEName(t){
+  const v=document.getElementById('en'+t).value.trim();
+  if(v){if(t===1){tn1=v;document.getElementById('t1name').textContent=v;}else{tn2=v;document.getElementById('t2name').textContent=v;}}
 }
 
 /* ── BRAVO ── */
 function sendBravo(){
   db.ref('bravo').set({ts:Date.now(),active:true});
-  const btn=document.querySelector('.bravo-btn');
-  btn.style.transform='scale(1.3)'; btn.textContent='🎊';
-  setTimeout(()=>{btn.style.transform='';btn.textContent='🎉';db.ref('bravo').set({ts:Date.now(),active:false});},4000);
+  const b=document.querySelector('.bravo-ico');
+  b.style.transform='scale(1.3)';b.textContent='🎊';
+  setTimeout(()=>{b.style.transform='';b.textContent='🎉';db.ref('bravo').set({ts:Date.now(),active:false});},4000);
 }
 
-/* ── FIREBASE ── */
-function pushFirebase(){
-  try{db.ref('scoreboard').set({score1,score2,team1Name,team2Name,quarter:currentQuarter,ts:Date.now()});}catch(e){}
-}
-function pushFirebaseTimer(){
-  try{
-    db.ref('game').set({
-      main:mainRemaining,
-      shot:shotSecs,
-      shotTenths:shotTenths,
-      team1:score1, team2:score2,
-      fouls1:foul1, fouls2:foul2,
-      mainRunning:mainRunning,
-      shotRunning:shotRunning,
-      ts:Date.now()
-    });
-  }catch(e){}
-}
+/* ── Wake lock ── */
+async function wl(){if('wakeLock' in navigator){try{await navigator.wakeLock.request('screen');}catch(e){}}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wl();});
+wl();
 
 renderAll();
 </script>
