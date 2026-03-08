@@ -3,24 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- ✅ PWA: Apple tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Basketball">
+<meta name="theme-color" content="#000000">
+
+<!-- ✅ PWA: Manifest (inline via blob) -->
+<script>
+(function(){
+  const manifest = {
+    name: "Basketball Scoreboard",
+    short_name: "Basketball",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#000000",
+    theme_color: "#000000",
+    orientation: "any",
+    icons: [
+      { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>", sizes: "192x192", type: "image/svg+xml" },
+      { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>", sizes: "512x512", type: "image/svg+xml" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel   = 'manifest';
+  link.href  = url;
+  document.head.appendChild(link);
+})();
+</script>
+
 <title>Basketball Controller</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Rajdhani',sans-serif}
-.board{width:100vw;height:100vh;background:#000;display:flex;flex-direction:column}
+html{height:-webkit-fill-available}
+body{min-height:-webkit-fill-available}
+.board{width:100vw;height:100vh;height:100dvh;background:#000;display:flex;flex-direction:column}
+@media screen and (orientation:landscape){
+  .board{width:100dvw;height:100dvh}
+  .dscore{font-size:clamp(38px,10vw,90px)!important}
+  .main-clk{font-size:clamp(22px,5vw,44px)!important}
+  .shot-top{font-size:clamp(16px,3.5vw,30px)!important}
+  .top-bar{padding:3px 10px}
+}
 
 /* TOP BAR */
 .top-bar{display:flex;align-items:center;padding:6px 10px;gap:8px}
-.shot-top{font-family:'Orbitron',monospace;font-size:clamp(20px,5.5vw,40px);font-weight:900;color:#e8c000;letter-spacing:2px;min-width:88px;cursor:pointer;border:2px dashed #e8c00055;border-radius:8px;padding:2px 6px;transition:color .2s}
+.shot-top{font-family:'Orbitron',monospace;font-size:clamp(20px,5.5vw,40px);font-weight:900;font-variant-numeric:tabular-nums;color:#e8c000;letter-spacing:2px;min-width:88px;cursor:pointer;border:2px dashed #e8c00055;border-radius:8px;padding:2px 6px;transition:color .2s}
 .shot-top.run{color:#ff8800;border-color:#ff880055}
 .shot-top.danger{color:#ff2200;border-color:#ff220077;animation:bl .4s infinite}
 @keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
 .top-center{flex:1;display:flex;align-items:center;justify-content:center;gap:10px}
 .play-btn{width:50px;height:50px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;flex-shrink:0}
 .play-btn:active{transform:scale(.9)}
-.main-clk{font-family:'Orbitron',monospace;font-size:clamp(28px,7.5vw,54px);font-weight:900;color:#ff2200;letter-spacing:3px;line-height:1}
+.main-clk{font-family:'Orbitron',monospace;font-size:clamp(28px,7.5vw,54px);font-weight:900;font-variant-numeric:tabular-nums;color:#ff2200;letter-spacing:3px;line-height:1}
 .qtr-lbl{font-family:'Rajdhani',sans-serif;font-size:clamp(16px,4.5vw,28px);font-weight:700;color:#fff;min-width:34px}
 .top-right{display:flex;gap:6px;align-items:center}
 .ico{width:44px;height:44px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0}
@@ -28,6 +68,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
 .bravo-ico{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ff6600,#ffcc00);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;flex-shrink:0;box-shadow:0 0 12px #ff660077;animation:pb 2s infinite}
 .bravo-ico:active{transform:scale(.88)}
 @keyframes pb{0%,100%{box-shadow:0 0 8px #ff660055}50%{box-shadow:0 0 20px #ff6600bb}}
+/* 📷 Camera button */
+.cam-ico{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0066ff,#00ccff);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;flex-shrink:0;box-shadow:0 0 10px #0066ff55}
+.cam-ico:active{transform:scale(.88)}
 
 /* MAIN */
 .main-content{flex:1;display:flex;align-items:stretch;min-height:0;padding:0 4px;gap:4px}
@@ -113,18 +156,50 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
 .qbtn{padding:6px 12px;border-radius:8px;border:2px solid #444;background:#111;color:#888;font-weight:700;font-size:14px;cursor:pointer}
 .qbtn.act{border-color:#ffcc00;color:#ffcc00;background:#2a2200}
 .qbtn:active{transform:scale(.9)}
+
+/* 📷 Camera preview modal */
+#camM{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:400;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#camM.show{display:flex}
+#camPreview{width:90vw;max-width:440px;border-radius:14px;border:2px solid #0066ff;object-fit:cover}
+.cam-actions{display:flex;gap:14px}
+.cam-shoot{background:linear-gradient(135deg,#0066ff,#00ccff);color:#fff;border:none;border-radius:50%;width:70px;height:70px;font-size:28px;cursor:pointer;box-shadow:0 0 20px #0066ff88}
+.cam-shoot:active{transform:scale(.9)}
+.cam-cancel{background:#333;color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:16px;font-weight:700;cursor:pointer}
+.cam-lbl{color:#aaa;font-size:13px;text-align:center;letter-spacing:1px}
+#camCanvas{display:none}
+#camWinner{background:#1a1a1a;border:1.5px solid #444;border-radius:12px;padding:10px 16px;display:flex;flex-direction:column;gap:8px;width:90vw;max-width:440px}
+#camWinner .cw-lbl{color:#aaa;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+#camWinner input{background:#333;border:1px solid #555;border-radius:8px;color:#fff;font-size:16px;padding:8px 12px;width:100%;font-family:'Rajdhani',sans-serif;-webkit-user-select:auto;user-select:auto;touch-action:auto}
+.cam-send{background:linear-gradient(135deg,#ff6600,#ffcc00);color:#000;border:none;border-radius:10px;padding:12px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Rajdhani',sans-serif;width:100%}
+.cam-send:active{transform:scale(.97)}
+
+/* ✅ PWA install banner */
+#pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid #444;padding:12px 16px;z-index:9999;align-items:center;gap:10px}
+#pwa-banner.show{display:flex}
+#pwa-banner span{color:#fff;font-size:13px;flex:1;line-height:1.4}
+#pwa-install-btn{background:#ffcc00;color:#000;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+#pwa-close-btn{background:none;border:none;color:#888;font-size:20px;cursor:pointer;padding:0 4px}
 </style>
 </head>
 <body>
+
+<!-- ✅ PWA Install Banner -->
+<div id="pwa-banner">
+  <span>🏀 Add to Home Screen for the best experience!</span>
+  <button id="pwa-install-btn">Install</button>
+  <button id="pwa-close-btn">✕</button>
+</div>
+
 <div class="board">
   <div class="top-bar">
     <div class="shot-top" id="shotTop" onclick="toggleShotClock()">24.0</div>
     <div class="top-center">
-      <button class="play-btn" id="playBtn" onclick="toggleMainClock()">▶</button>
+      <button class="play-btn" id="playBtn" onclick="toggleMainClock()">▶️</button>
       <div class="main-clk" id="mainClk">10:00</div>
       <div class="qtr-lbl" id="qtrLbl">1st</div>
     </div>
     <div class="top-right">
+      <button class="cam-ico" onclick="openCamera()">📷</button>
       <button class="ico" style="background:#ffcc00" onclick="openEdit()">✏️</button>
       <button class="bravo-ico" onclick="sendBravo()">🎉</button>
       <button class="ico" onclick="showOpts()">⋯</button>
@@ -222,8 +297,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
 <div class="mover" id="optsM">
   <div class="mbox">
     <h3>Options</h3>
-    <button class="mbtn" onclick="prevQtr();closeOpts()">◀ Prev Quarter</button>
-    <button class="mbtn" onclick="nextQtr();closeOpts()">Next Quarter ▶</button>
+    <button class="mbtn" onclick="prevQtr();closeOpts()">◀️ Prev Quarter</button>
+    <button class="mbtn" onclick="nextQtr();closeOpts()">Next Quarter ▶️</button>
     <button class="mbtn" onclick="resetQtrTimer();closeOpts()">Reset Timer</button>
     <button class="mbtn" onclick="goFS();closeOpts()">⛶ Fullscreen</button>
     <button class="mbtn" style="background:#e74c3c;color:#fff" onclick="closeOpts();confirmReset()">Reset Match</button>
@@ -244,7 +319,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
 <div id="editM">
   <div class="econ">
     <div class="etitle">✏️ EDIT MODE</div>
-
     <div class="esec">
       <div class="esect">⏱ Main Clock</div>
       <div class="terow">
@@ -263,7 +337,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
         </div>
       </div>
     </div>
-
     <div class="esec">
       <div class="esect">🟡 Shot Clock (sec)</div>
       <div class="erow">
@@ -275,7 +348,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
         </div>
       </div>
     </div>
-
     <div class="esec">
       <div class="esect">🏀 Quarter</div>
       <div class="qbar">
@@ -285,7 +357,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
         <button class="qbtn" onclick="setQtrEdit(4)">4th</button>
       </div>
     </div>
-
     <div class="esec">
       <div class="esect">🟡 Team 1</div>
       <div class="eninrow">
@@ -309,7 +380,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
         </div>
       </div>
     </div>
-
     <div class="esec">
       <div class="esect">🟠 Team 2</div>
       <div class="eninrow">
@@ -333,9 +403,23 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
         </div>
       </div>
     </div>
-
     <button class="eclsb" onclick="closeEdit()">✅ Done</button>
   </div>
+</div>
+
+<!-- 📷 Camera Modal -->
+<div id="camM">
+  <div class="cam-lbl">📷 WINNER PHOTO</div>
+  <video id="camPreview" autoplay playsinline muted></video>
+  <canvas id="camCanvas"></canvas>
+  <div id="camWinner">
+    <div class="cw-lbl">Winner Team Name</div>
+    <input type="text" id="camWinnerName" placeholder="e.g. Team 1" style="-webkit-user-select:auto;user-select:auto;touch-action:auto">
+  </div>
+  <div class="cam-actions">
+    <button class="cam-shoot" onclick="shootPhoto()">📸</button>
+  </div>
+  <button class="cam-cancel" onclick="closeCamera()">Cancel</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -360,11 +444,11 @@ firebase.initializeApp({
   appId:"1:760753992927:web:8702569c9c7c45be7fe56a"
 });
 const db = firebase.database();
-const REF = db.ref('live'); // single node — whole state in one write
+const REF = db.ref('live');
 
 /* ── Constants ── */
 const QN = ['1st','2nd','3rd','4th'];
-const QD = 600; // 10 min
+const QD = 600;
 
 /* ── State ── */
 function ld(){try{return JSON.parse(localStorage.getItem('bb')||'{}')}catch(e){return{}}}
@@ -375,9 +459,9 @@ let f1=S.f1??0,   f2=S.f2??0;
 let dt1=S.dt1??0, dt2=S.dt2??0;
 let qtr=S.qtr??1;
 let tn1=S.tn1??'Team 1', tn2=S.tn2??'Team 2';
-let mainSec=S.mainSec??QD;          // main clock seconds remaining
-let shot=S.shot??24;                // shot clock whole seconds
-let shotMs=S.shotMs??0;             // shot clock milliseconds (0-999)
+let mainSec=S.mainSec??QD;
+let shot=S.shot??24;
+let shotMs=S.shotMs??0;
 let prev1=sc1, prev2=sc2;
 let editingT=0;
 
@@ -391,28 +475,14 @@ function save(){
   try{localStorage.setItem('bb',JSON.stringify({sc1,sc2,f1,f2,dt1,dt2,qtr,tn1,tn2,mainSec,shot,shotMs}))}catch(e){}
 }
 
-/* ── Firebase push — ONE node, everything ── */
+/* ── Firebase push ── */
 let fbThrottle=null;
 function push(immediate){
-  if(immediate){
-    _doPush();
-  } else {
-    if(fbThrottle) return;
-    fbThrottle=setTimeout(()=>{fbThrottle=null;_doPush();},200);
-  }
+  if(immediate){_doPush();}
+  else{if(fbThrottle)return;fbThrottle=setTimeout(()=>{fbThrottle=null;_doPush();},200);}
 }
 function _doPush(){
-  try{
-    REF.set({
-      sc1,sc2,f1,f2,qtr,tn1,tn2,
-      mainSec,
-      shot,
-      shotMs,
-      mainRunning,
-      shotRunning,
-      ts:Date.now()
-    });
-  }catch(e){}
+  try{REF.set({sc1,sc2,f1,f2,qtr,tn1,tn2,mainSec,shot,shotMs,mainRunning,shotRunning,ts:Date.now()});}catch(e){}
 }
 
 /* ── RENDER ── */
@@ -445,90 +515,48 @@ function rShot(){
 
 /* ── MAIN CLOCK ── */
 function toggleMainClock(){
-  if(mainRunning){ stopAll(); }
-  else           { startAll(); }
+  if(mainRunning){stopAll();}else{startAll();}
 }
-function startAll(){
-  startMain();
-  startShot();
-  document.getElementById('playBtn').textContent='⏸';
-}
+function startAll(){startMain();startShot();document.getElementById('playBtn').textContent='⏸';}
 function stopAll(){
-  stopMain();
-  stopShot();
-  document.getElementById('playBtn').textContent='▶';
+  stopMain();stopShot();
+  document.getElementById('playBtn').textContent='▶️';
   push(true);
 }
 function startMain(){
-  if(mainRunning) return;
-  mainRunning=true;
-  mainLast=Date.now();
+  if(mainRunning)return;
+  mainRunning=true;mainLast=Date.now();
   mainTick=setInterval(()=>{
-    const now=Date.now();
-    const elapsed=now-mainLast;
-    mainLast=now;
-    mainSec=Math.max(0, mainSec - Math.round(elapsed/1000));
-    rMain();
-    push();
-    if(mainSec<=0){ stopAll(); save(); }
+    const now=Date.now();const elapsed=now-mainLast;mainLast=now;
+    mainSec=Math.max(0,mainSec-Math.round(elapsed/1000));
+    rMain();push();
+    if(mainSec<=0){stopAll();save();}
   },1000);
 }
-function stopMain(){
-  mainRunning=false;
-  clearInterval(mainTick); mainTick=null;
-  save();
-}
-function resetQtrTimer(){
-  stopAll();
-  mainSec=QD; shot=24; shotMs=0;
-  renderAll(); save(); push(true);
-}
+function stopMain(){mainRunning=false;clearInterval(mainTick);mainTick=null;save();}
+function resetQtrTimer(){stopAll();mainSec=QD;shot=24;shotMs=0;renderAll();save();push(true);}
 
 /* ── SHOT CLOCK ── */
 function toggleShotClock(){
-  if(shotRunning) stopShot();
-  else            startShot();
+  if(shotRunning)stopShot();else startShot();
   push(true);
 }
 function startShot(){
-  if(shotRunning) return;
-  if(shot<=0 && shotMs<=0) return;
-  shotRunning=true;
-  shotLast=Date.now();
-  rShot();
+  if(shotRunning)return;
+  if(shot<=0&&shotMs<=0)return;
+  shotRunning=true;shotLast=Date.now();rShot();
   shotTick=setInterval(()=>{
-    const now=Date.now();
-    const elapsed=now-shotLast; // ms elapsed
-    shotLast=now;
-    // subtract elapsed ms
-    let total = shot*1000 + shotMs - elapsed;
-    if(total<=0){ total=0; stopShot(); push(true); }
-    shot=Math.floor(total/1000);
-    shotMs=total%1000;
-    rShot();
-    // push every ~500ms to keep display in sync
-    push();
+    const now=Date.now();const elapsed=now-shotLast;shotLast=now;
+    let total=shot*1000+shotMs-elapsed;
+    if(total<=0){total=0;stopShot();push(true);}
+    shot=Math.floor(total/1000);shotMs=total%1000;
+    rShot();push();
   },100);
 }
-function stopShot(){
-  shotRunning=false;
-  clearInterval(shotTick); shotTick=null;
-  rShot(); save();
-}
-
-/* setShotClock: press 14 or 24 — always starts BOTH clocks */
+function stopShot(){shotRunning=false;clearInterval(shotTick);shotTick=null;rShot();save();}
 function setShotClock(val){
-  stopShot();
-  shot=val; shotMs=0;
-  rShot();
-  // always start shot clock
-  startShot();
-  // also start main clock if not already running
-  if(!mainRunning){
-    startMain();
-    document.getElementById('playBtn').textContent='⏸';
-  }
-  save(); push(true);
+  stopShot();shot=val;shotMs=0;rShot();
+  save();push(true);
 }
 
 /* ── QUARTER ── */
@@ -558,8 +586,8 @@ function cycleDot(t){
 function confirmReset(){document.getElementById('confM').classList.add('show');}
 function doReset(){
   document.getElementById('confM').classList.remove('show');
-  sc1=sc2=f1=f2=dt1=dt2=0; prev1=prev2=0; qtr=1;
-  stopAll(); mainSec=QD; shot=24; shotMs=0;
+  sc1=sc2=f1=f2=dt1=dt2=0;prev1=prev2=0;qtr=1;
+  stopAll();mainSec=QD;shot=24;shotMs=0;
   renderAll();save();push(true);
 }
 
@@ -597,10 +625,7 @@ function openEdit(){
   document.querySelectorAll('.qbtn').forEach((b,i)=>b.classList.toggle('act',i+1===qtr));
   document.getElementById('editM').classList.add('show');
 }
-function closeEdit(){
-  document.getElementById('editM').classList.remove('show');
-  renderAll();save();push(true);
-}
+function closeEdit(){document.getElementById('editM').classList.remove('show');renderAll();save();push(true);}
 function adjTime(u,d){
   let m=parseInt(document.getElementById('eMin').textContent)||0;
   let s=parseInt(document.getElementById('eSec').textContent)||0;
@@ -612,8 +637,8 @@ function adjTime(u,d){
   rMain();
 }
 function adjShot(d){
-  stopShot(); shot=Math.max(0,Math.min(60,shot+d)); shotMs=0;
-  document.getElementById('eShot').textContent=shot; rShot();
+  stopShot();shot=Math.max(0,Math.min(60,shot+d));shotMs=0;
+  document.getElementById('eShot').textContent=shot;rShot();
 }
 function setQtrEdit(q){
   qtr=q;
@@ -622,11 +647,11 @@ function setQtrEdit(q){
 }
 function adjScore(t,d){
   if(t===1){sc1=Math.max(0,sc1+d);document.getElementById('es1').textContent=sc1;document.getElementById('sc1').textContent=sc1;}
-  else     {sc2=Math.max(0,sc2+d);document.getElementById('es2').textContent=sc2;document.getElementById('sc2').textContent=sc2;}
+  else{sc2=Math.max(0,sc2+d);document.getElementById('es2').textContent=sc2;document.getElementById('sc2').textContent=sc2;}
 }
 function adjFoul(t,d){
   if(t===1){f1=Math.max(0,f1+d);document.getElementById('ef1').textContent=f1;}
-  else     {f2=Math.max(0,f2+d);document.getElementById('ef2').textContent=f2;}
+  else{f2=Math.max(0,f2+d);document.getElementById('ef2').textContent=f2;}
   document.getElementById('fn1').textContent=f1;document.getElementById('fn2').textContent=f2;
   document.getElementById('fd1').textContent=f1;document.getElementById('fd2').textContent=f2;
 }
@@ -635,18 +660,149 @@ function saveEName(t){
   if(v){if(t===1){tn1=v;document.getElementById('t1name').textContent=v;}else{tn2=v;document.getElementById('t2name').textContent=v;}}
 }
 
-/* ── BRAVO ── */
+/* ── ✅ FIX 1: Timer continues through screen rotation / visibility change ── */
+let _hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){
+    // record when we went hidden
+    _hiddenAt=Date.now();
+  } else {
+    // page came back — catch up the clocks
+    if(_hiddenAt>0){
+      const gap=Date.now()-_hiddenAt;
+      if(mainRunning){
+        mainSec=Math.max(0,mainSec-Math.round(gap/1000));
+        mainLast=Date.now(); // reset tick anchor
+        if(mainSec<=0){stopAll();save();}
+      }
+      if(shotRunning){
+        let total=shot*1000+shotMs-gap;
+        if(total<=0){total=0;stopShot();push(true);}
+        else{shot=Math.floor(total/1000);shotMs=total%1000;}
+        shotLast=Date.now(); // reset tick anchor
+      }
+      _hiddenAt=0;
+      renderAll();
+      push(true);
+    }
+    wl();
+  }
+});
+
+/* ── ✅ FIX 2: BRAVO — 30 seconds ── */
 function sendBravo(){
   db.ref('bravo').set({ts:Date.now(),active:true});
   const b=document.querySelector('.bravo-ico');
   b.style.transform='scale(1.3)';b.textContent='🎊';
-  setTimeout(()=>{b.style.transform='';b.textContent='🎉';db.ref('bravo').set({ts:Date.now(),active:false});},4000);
+  setTimeout(()=>{
+    b.style.transform='';b.textContent='🎉';
+    db.ref('bravo').set({ts:Date.now(),active:false});
+  },30000); // ✅ 30 ثانية
+}
+
+/* ── ✅ FIX 3: Camera → photo → Firebase → Display ── */
+let camStream=null;
+
+async function openCamera(){
+  const modal=document.getElementById('camM');
+  const video=document.getElementById('camPreview');
+  // pre-fill winner name from scores
+  const winName=sc1>sc2?tn1:(sc2>sc1?tn2:'');
+  document.getElementById('camWinnerName').value=winName;
+  modal.classList.add('show');
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+    video.srcObject=camStream;
+  }catch(e){
+    // fallback: file picker if camera blocked
+    alert('Camera not available, opening file picker...');
+    closeCamera();
+    openFilePicker();
+  }
+}
+
+function closeCamera(){
+  document.getElementById('camM').classList.remove('show');
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  const video=document.getElementById('camPreview');
+  video.srcObject=null;
+}
+
+function shootPhoto(){
+  const video=document.getElementById('camPreview');
+  const canvas=document.getElementById('camCanvas');
+  canvas.width=video.videoWidth||640;
+  canvas.height=video.videoHeight||480;
+  canvas.getContext('2d').drawImage(video,0,0);
+  const dataURL=canvas.toDataURL('image/jpeg',0.75);
+  const winner=document.getElementById('camWinnerName').value.trim()||'Winner';
+  uploadWinnerPhoto(dataURL,winner);
+  closeCamera();
+}
+
+function openFilePicker(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='image/*';
+  input.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>uploadWinnerPhoto(ev.target.result,'Winner');
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function uploadWinnerPhoto(dataURL,winnerName){
+  // Firebase Realtime DB — store as base64 (max ~750KB after JPEG compression)
+  db.ref('winner_photo').set({
+    photo:dataURL,
+    winner:winnerName,
+    sc1,sc2,tn1,tn2,
+    ts:Date.now(),
+    active:true
+  }).then(()=>{
+    // also trigger bravo
+    sendBravo();
+  }).catch(e=>console.error('Photo upload error:',e));
 }
 
 /* ── Wake lock ── */
 async function wl(){if('wakeLock' in navigator){try{await navigator.wakeLock.request('screen');}catch(e){}}}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wl();});
 wl();
+
+/* ── ✅ PWA: Service Worker ── */
+if('serviceWorker' in navigator){
+  const swCode=`
+    const CACHE='bb-v2';
+    const ASSETS=[self.location.pathname];
+    self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});
+    self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
+    self.addEventListener('fetch',e=>{if(e.request.url.includes('firebasejs')||e.request.url.includes('googleapis'))return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match(e.request))));});
+  `;
+  const swBlob=new Blob([swCode],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'})
+    .catch(e=>console.log('SW error:',e));
+}
+
+/* ── ✅ PWA: Install prompt ── */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('pwa-banner').classList.add('show');
+});
+document.getElementById('pwa-install-btn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('pwa-banner').classList.remove('show');
+});
+document.getElementById('pwa-close-btn').addEventListener('click',()=>{
+  document.getElementById('pwa-banner').classList.remove('show');
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('pwa-banner').classList.remove('show');
+});
 
 renderAll();
 </script>
